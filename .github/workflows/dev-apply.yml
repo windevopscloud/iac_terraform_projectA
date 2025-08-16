@@ -12,6 +12,7 @@ jobs:
   terraform-apply:
     if: github.event.inputs.confirm == 'yes'
     runs-on: ubuntu-latest
+    environment: dev
     env:
       VAR_BACKEND: dev
       AWS_REGION: "us-east-1"

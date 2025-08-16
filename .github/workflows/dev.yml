@@ -1,0 +1,37 @@
+name: Dev IaC Workflow
+
+on:
+  pull_request:
+    branches: [ "dev" ]
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./dev
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init -backend-config=backend.hcl
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+  apply:
+    if: github.event.pull_request.merged == true
+    needs: terraform
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init -backend-config=backend.hcl
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan

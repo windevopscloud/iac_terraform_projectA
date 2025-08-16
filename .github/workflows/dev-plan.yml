@@ -1,0 +1,63 @@
+name: Dev Terraform Plan
+
+on:
+  pull_request:
+    branches: [ "dev" ]
+
+  #workflow_dispatch:
+    #inputs:
+      #aws_access_key_id:
+      #  description: "AWS Access Key ID"
+      #  required: true
+      #  default: ""
+      #aws_secret_access_key:
+      #  description: "AWS Secret Access Key"
+      #  required: true
+      #  default: ""
+
+jobs:
+  terraform-plan:
+    runs-on: ubuntu-latest
+    env:
+      VAR_BACKEND: dev
+      AWS_REGION: "us-east-1"
+    defaults:
+      run:
+        working-directory: ./dev
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          #aws-access-key-id: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.aws_access_key_id }}
+          #aws-secret-access-key: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.aws_secret_access_key }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      # Check aws connection and user identity
+      - name: Verify AWS CLI
+        run: aws sts get-caller-identity
+
+      # Run TFLint using official action
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v1
+        
+      - name: Run TFLint
+        run: tflint
+      
+      # Run tfsec using official action
+      - name: Run tfsec Scan
+        uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Terraform Init
+        run: terraform init -backend-config=${VAR_BACKEND}-backend.hcl
+
+      - name: Terraform Plan
+        run: terraform plan

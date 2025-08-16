@@ -18,6 +18,7 @@ on:
 jobs:
   terraform-plan:
     runs-on: ubuntu-latest
+    environment: dev
     env:
       VAR_BACKEND: dev
       AWS_REGION: "us-east-1"

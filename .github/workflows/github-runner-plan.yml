@@ -1,4 +1,4 @@
-name: Dev Terraform Plan
+name: github-runner-plan
 
 on:
   pull_request:

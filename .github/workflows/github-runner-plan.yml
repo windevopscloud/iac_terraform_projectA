@@ -112,22 +112,22 @@ jobs:
           path: dev/tfplan
           if-no-files-found: error
 
-      - name: Comment PR with Plan Output
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const fs = require('fs');
-            let planOutput = fs.readFileSync('dev/tfplan', 'utf8');
-            // Truncate if too long
-            if (planOutput.length > 65536) {
-              planOutput = planOutput.substring(0, 65536) + '\n\n... (output truncated due to length)';
-            }
-            const comment = `### Terraform Plan Output\n\n\`\`\`\n${planOutput}\n\`\`\``;
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: comment
-            });
+      #- name: Comment PR with Plan Output
+      #  if: github.event_name == 'pull_request'
+      #  uses: actions/github-script@v7
+      #  with:
+      #    github-token: ${{ secrets.GITHUB_TOKEN }}
+      #    script: |
+      #      const fs = require('fs');
+      #      let planOutput = fs.readFileSync('dev/tfplan', 'utf8');
+      #      // Truncate if too long
+      #      if (planOutput.length > 65536) {
+      #        planOutput = planOutput.substring(0, 65536) + '\n\n... (output truncated due to length)';
+      #      }
+      #      const comment = `### Terraform Plan Output\n\n\`\`\`\n${planOutput}\n\`\`\``;
+      #      github.rest.issues.createComment({
+      #        issue_number: context.issue.number,
+      #        owner: context.repo.owner,
+      #        repo: context.repo.repo,
+      #        body: comment
+      #      });

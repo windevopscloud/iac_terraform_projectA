@@ -1,10 +1,10 @@
-# If you can access the remote state of the VPC repo
 data "terraform_remote_state" "bootstrap" {
-  backend = "s3" # or whatever backend they use
+  backend = "s3"
+
   config = {
-    bucket = var.state_bucket_name
-    key    = var.state_table_name
-    region = var.aws_region
+    bucket = "windevopscloud-terraform-bucket"
+    key    = "bootstrap/terraform.tfstate"
+    region = "us-east-1"
   }
 }
 

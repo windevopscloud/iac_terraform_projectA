@@ -3,7 +3,7 @@ resource "aws_instance" "github_runner" {
 
   ami           = data.aws_ami.ubuntu.id
   instance_type = var.runner_instance_type
-  subnet_id     = aws_subnet.private[0].id # Use first private subnet
+  subnet_id     = data.terraform_remote_state.bootstrap.outputs.private_subnets[0] # Use first private subnet
 
   vpc_security_group_ids = [aws_security_group.github_runner.id]
   iam_instance_profile   = aws_iam_instance_profile.github_runner.name

@@ -4,7 +4,7 @@ resource "aws_vpc_endpoint" "ssm" {
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
 
-  subnet_ids         = data.terraform_remote_state.bootstrap.outputs.private_subnets[*].id
+  subnet_ids = data.terraform_remote_state.bootstrap.outputs.private_subnets
   security_group_ids = [aws_security_group.vpc_endpoint.id]
 
   tags = {
@@ -18,7 +18,7 @@ resource "aws_vpc_endpoint" "ssm_messages" {
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
 
-  subnet_ids         = data.terraform_remote_state.bootstrap.outputs.private_subnets[*].id
+  subnet_ids = data.terraform_remote_state.bootstrap.outputs.private_subnets
   security_group_ids = [aws_security_group.vpc_endpoint.id]
 
   tags = {
@@ -32,7 +32,7 @@ resource "aws_vpc_endpoint" "ec2_messages" {
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
 
-  subnet_ids         = data.terraform_remote_state.bootstrap.outputs.private_subnets[*].id
+  subnet_ids = data.terraform_remote_state.bootstrap.outputs.private_subnets
   security_group_ids = [aws_security_group.vpc_endpoint.id]
 
   tags = {

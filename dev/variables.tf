@@ -34,7 +34,7 @@ variable "runner_instance_type" {
 variable "github_organization" {
   description = "GitHub organization name (e.g., 'mycompany') or user name for personal account"
   type        = string
-  default = null
+  default     = null
 }
 
 # Optional: If you want repository-level runners instead

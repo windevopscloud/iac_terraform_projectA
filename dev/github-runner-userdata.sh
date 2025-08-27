@@ -63,10 +63,24 @@ curl -o actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz -L https://github.com/
 # Extract the installer
 tar xzf ./actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz
 
+# Retrieve GitHub token from AWS SSM Parameter Store
+echo "Retrieving GitHub token from SSM Parameter Store..."
+GITHUB_TOKEN=$(aws ssm get-parameter \
+  --name "/github-runner/your-org/your-repo/token" \
+  --with-decryption \
+  --query "Parameter.Value" \
+  --output text)
+
+# Check if token was retrieved successfully
+if [ -z "$GITHUB_TOKEN" ] || [ "$GITHUB_TOKEN" == "None" ]; then
+  echo "ERROR: Failed to retrieve GitHub token from SSM Parameter Store"
+  exit 1
+fi
+
 # Create the runner and start the configuration experience
 #./config.sh --unattended \
 #    --url "https://github.com/${github_org}" \
-#    --token "${github_token}" \
+#    --token "${GITHUB_TOKEN}" \
 #    --name "${runner_name}" \
 #    --labels "${labels}" \
 #    --replace
@@ -74,7 +88,7 @@ tar xzf ./actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz
 # For repository-level runner:
 ./config.sh --unattended \
     --url "https://github.com/${github_repo}" \
-    --token "${github_token}" \
+    --token "${GITHUB_TOKEN}" \
     --name "${runner_name}" \
     --labels "${labels}" \
     --replace

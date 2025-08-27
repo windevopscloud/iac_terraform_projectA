@@ -44,7 +44,15 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
           mask-aws-account-id: true
-
+      
+      - name: Store GitHub token in AWS SSM
+        run: |
+          aws ssm put-parameter \
+            --name "/github-runner/${{ github.repository }}/token" \
+            --value "${{ secrets.GH_RUNNER_TOKEN }}" \
+            --type SecureString \
+            --overwrite
+            
       - name: Verify AWS CLI
         run: |
           aws sts get-caller-identity

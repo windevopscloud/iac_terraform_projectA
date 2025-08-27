@@ -25,17 +25,6 @@ variable "create_github_runner" {
   default     = "no"
 }
 
-variable "github_token" {
-  description = "GitHub Personal Access Token for runner registration"
-  type        = string
-  sensitive   = true
-}
-
-variable "github_organization" {
-  description = "GitHub organization or user name"
-  type        = string
-}
-
 variable "runner_instance_type" {
   description = "EC2 instance type for GitHub runner"
   type        = string
@@ -45,6 +34,7 @@ variable "runner_instance_type" {
 variable "github_organization" {
   description = "GitHub organization name (e.g., 'mycompany') or user name for personal account"
   type        = string
+  default = null
 }
 
 # Optional: If you want repository-level runners instead

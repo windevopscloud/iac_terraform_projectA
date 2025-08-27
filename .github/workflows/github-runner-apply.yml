@@ -1,4 +1,4 @@
-name: Dev Terraform Apply
+name: github-runner-apply
 
 on:
   workflow_dispatch:
@@ -13,7 +13,7 @@ on:
         default: ""
 
 concurrency:
-  group: terraform-apply-dev
+  group: github-runner-apply
   cancel-in-progress: false
 
 env:

@@ -25,6 +25,12 @@ variable "create_github_runner" {
   default     = "no"
 }
 
+variable "runner_version" {
+  description = "Specify the github runner version"
+  type        = string
+  default     = "2.328.0"
+}
+
 variable "runner_instance_type" {
   description = "EC2 instance type for GitHub runner"
   type        = string

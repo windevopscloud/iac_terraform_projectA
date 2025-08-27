@@ -1,0 +1,91 @@
+name: github-runner-apply
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type 'apply-dev' to confirm apply in dev"
+        required: true
+        default: "apply-dev"
+      plan_artifact:
+        description: "Plan artifact name from Terraform Plan workflow"
+        required: false
+        default: ""
+
+concurrency:
+  group: github-runner-apply
+  cancel-in-progress: false
+
+env:
+  VAR_BACKEND: dev
+  AWS_REGION: "us-east-1"
+
+jobs:
+  terraform-apply:
+    if: github.event.inputs.confirm == 'apply-dev'
+    runs-on: ubuntu-latest
+    environment: dev
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: ./dev
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download Plan Artifact if provided
+        uses: actions/download-artifact@v4
+        if: github.event.inputs.plan_artifact != ''
+        with:
+          name: ${{ github.event.inputs.plan_artifact }}
+          path: ./dev/
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.0"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Store GitHub token in AWS SSM
+        run: |
+          aws ssm put-parameter \
+            --name "/github-runner/${{ github.repository }}/token" \
+            --value "${{ secrets.GH_RUNNER_TOKEN }}" \
+            --type SecureString \
+            --overwrite
+            
+      - name: Verify AWS permissions
+        run: aws sts get-caller-identity
+
+      - name: Terraform Init
+        run: terraform init -reconfigure -backend-config=${VAR_BACKEND}-backend.hcl
+
+      - name: Terraform Plan (if no plan provided)
+        if: github.event.inputs.plan_artifact == ''
+        run: terraform plan -var-file="dev.tfvars" -out=tfplan -no-color
+
+      - name: Terraform Apply
+        timeout-minutes: 30
+        run: |
+          if [ -f "tfplan" ]; then
+            terraform apply -input=false -no-color tfplan
+          else
+            echo "No plan file found. Applying with auto-approve"
+            terraform apply -var-file="dev.tfvars" -auto-approve -no-color
+          fi
+
+      - name: Capture Terraform Outputs
+        run: terraform output -json > outputs.json
+
+      - name: Upload Terraform Outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-outputs
+          path: dev/outputs.json

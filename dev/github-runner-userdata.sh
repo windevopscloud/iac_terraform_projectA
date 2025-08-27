@@ -79,7 +79,7 @@ fi
 # Create the runner and start the configuration experience
 #./config.sh --unattended \
 #    --url "https://github.com/${github_org}" \
-#    --token "${GITHUB_TOKEN}" \
+#    --token "$${GITHUB_TOKEN}" \
 #    --name "${runner_name}" \
 #    --labels "${labels}" \
 #    --replace
@@ -87,7 +87,7 @@ fi
 # For repository-level runner:
 ./config.sh --unattended \
     --url "https://github.com/${github_repo}" \
-    --token "${GITHUB_TOKEN}" \
+    --token "$${GITHUB_TOKEN}" \
     --name "${runner_name}" \
     --labels "${labels}" \
     --replace

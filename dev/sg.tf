@@ -31,7 +31,7 @@ resource "aws_security_group" "github_runner" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = [var.vpc_cidr]
+    cidr_blocks = [data.aws_vpc.selected.cidr_block]
   }
 
   # Allow SSM traffic to VPC endpoints
@@ -39,7 +39,7 @@ resource "aws_security_group" "github_runner" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr] # Only allow to VPC endpoints
+    cidr_blocks = [data.aws_vpc.selected.cidr_block] # Only allow to VPC endpoints
   }
 
   tags = {
@@ -56,7 +56,7 @@ resource "aws_security_group" "vpc_endpoint" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr]
+    cidr_blocks = [data.aws_vpc.selected.cidr_block]
   }
 
   # Allow outbound to any (endpoints need to communicate with AWS services)

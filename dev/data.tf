@@ -7,3 +7,7 @@ data "terraform_remote_state" "bootstrap" {
     region = var.aws_region
   }
 }
+
+data "aws_vpc" "selected" {
+  id = data.terraform_remote_state.bootstrap.outputs.vpc_id
+}

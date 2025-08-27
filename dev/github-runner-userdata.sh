@@ -56,11 +56,11 @@ pip3 install awscli boto3
 mkdir -p /opt/actions-runner && cd /opt/actions-runner
 
 # Download the latest runner package
-RUNNER_VERSION=$(curl -s https://api.github.com/repos/actions/runner/releases/latest | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/' | head -1)
-curl -o actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz -L https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz
+runner_version=$(curl -s https://api.github.com/repos/actions/runner/releases/latest | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/' | head -1)
+curl -o actions-runner-linux-x64-${runner_version}.tar.gz -L https://github.com/actions/runner/releases/download/v${runner_version}/actions-runner-linux-x64-${runner_version}.tar.gz
 
 # Extract the installer
-tar xzf ./actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz
+tar xzf ./actions-runner-linux-x64-${runner_version}.tar.gz
 
 # Retrieve GitHub token from AWS SSM Parameter Store
 echo "Retrieving GitHub token from SSM Parameter Store..."
@@ -115,5 +115,5 @@ node --version
 python3 --version
 
 # Clean up
-rm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz
+rm actions-runner-linux-x64-${runner_version}.tar.gz
 rm /tmp/ssm-install.sh

@@ -23,6 +23,7 @@ resource "aws_instance" "github_runner" {
     helm_version      = var.helm_version
     kubectl_version   = var.kubectl_version
     node_version      = var.node_version
+    runner_version    = var.runner_version
   }))
 
   tags = {

@@ -24,10 +24,10 @@ resource "aws_iam_role_policy_attachment" "github_runner_ssm" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
-resource "aws_iam_role_policy_attachment" "github_runner_ssm_automation" {
-  role       = aws_iam_role.github_runner.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMAutomationRole"
-}
+#resource "aws_iam_role_policy_attachment" "github_runner_ssm_automation" {
+#  role       = aws_iam_role.github_runner.name
+#  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMAutomationRole"
+#}
 
 resource "aws_iam_instance_profile" "github_runner" {
   name_prefix = "github-runner-profile-"

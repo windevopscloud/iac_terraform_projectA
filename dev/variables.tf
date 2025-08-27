@@ -47,7 +47,7 @@ variable "github_repository" {
 variable "terraform_version" {
   description = "Terraform version to install"
   type        = string
-  default     = "1.5.0"
+  default     = "1.6.0"
 }
 
 variable "helm_version" {

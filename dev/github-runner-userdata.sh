@@ -20,8 +20,7 @@ apt-get install -y \
 usermod -aG docker ubuntu
 
 # Install Terraform
-TERRAFORM_VERSION="${terraform_version}"
-curl -o terraform.zip -L "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+curl -o terraform.zip -L "https://releases.hashicorp.com/terraform/${terraform_version}/terraform_${terraform_version}_linux_amd64.zip"
 unzip terraform.zip
 mv terraform /usr/local/bin/
 rm terraform.zip

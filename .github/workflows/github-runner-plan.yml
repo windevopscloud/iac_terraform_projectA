@@ -34,7 +34,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "1.5.0"  # Pin Terraform version
+          terraform_version: "1.6.0"  # Pin Terraform version
           terraform_wrapper: false
 
       - name: Configure AWS credentials

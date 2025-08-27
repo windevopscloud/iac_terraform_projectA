@@ -1,0 +1,125 @@
+name: Dev Terraform Plan
+
+on:
+  pull_request:
+    branches: [ "dev" ]
+    #paths:
+    #  - 'dev/**'  # Only trigger when dev directory changes
+
+  workflow_dispatch:
+    inputs:
+      terraform_flags:
+        description: "Additional Terraform flags"
+        required: false
+        default: ""
+
+env:
+  VAR_BACKEND: dev
+  AWS_REGION: "us-east-1"
+  TF_WORKSPACE: dev
+
+jobs:
+  terraform-plan:
+    runs-on: ubuntu-latest
+    environment: dev
+    defaults:
+      run:
+        working-directory: ./dev
+        shell: bash
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4  # Updated to v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.0"  # Pin Terraform version
+          terraform_wrapper: false
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          mask-aws-account-id: true
+
+      - name: Verify AWS CLI
+        run: |
+          aws sts get-caller-identity
+          echo "AWS Account ID: $(aws sts get-caller-identity --query Account --output text)"
+
+      #- name: Setup TFLint
+      #  uses: terraform-linters/setup-tflint@v3  # Updated to v3
+      #  with:
+      #    tflint_version: "v0.50.3"  # Pin TFLint version
+
+      #- name: Run TFLint
+      #  run: |
+      #    tflint --init
+      #    tflint --format=checkstyle | reviewdog -f=checkstyle -name="tflint" -reporter=github-pr-check
+
+      #- name: Run tfsec Scan
+      #  uses: aquasecurity/tfsec-action@v1.4.0  # Updated version
+      #  with:
+      #    soft_fail: true  # Don't fail the build on tfsec findings
+      #    output_format: sarif
+      #    output_file: tfsec.sarif
+
+      #- name: Upload tfsec results
+      #  uses: github/codeql-action/upload-sarif@v3
+      #  if: always()
+      #  with:
+      #    sarif_file: tfsec.sarif
+
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -reconfigure \
+            -backend-config=${VAR_BACKEND}-backend.hcl \
+            -input=false
+
+      - name: Terraform Validate
+        run: terraform validate -no-color
+
+      - name: Terraform Format Check
+        run: |
+          terraform fmt -check -recursive -diff
+          echo "Format check completed"
+
+      - name: Terraform Plan
+        run: |
+          terraform plan \
+            -var-file="dev.tfvars" \
+            -input=false \
+            -no-color \
+            -out=tfplan \
+            ${{ github.event.inputs.terraform_flags }}
+
+      - name: Upload Terraform Plan Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan
+          path: dev/tfplan
+          if-no-files-found: error
+
+      - name: Comment PR with Plan Output
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            let planOutput = fs.readFileSync('dev/tfplan', 'utf8');
+            // Truncate if too long
+            if (planOutput.length > 65536) {
+              planOutput = planOutput.substring(0, 65536) + '\n\n... (output truncated due to length)';
+            }
+            const comment = `### Terraform Plan Output\n\n\`\`\`\n${planOutput}\n\`\`\``;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });

@@ -1,6 +1,6 @@
 resource "aws_security_group" "github_runner" {
   name_prefix = "github-runner-sg-"
-  vpc_id      = data.terraform_remote_state.bootstrap.outputs.vpc_id[0].id
+  vpc_id      = data.terraform_remote_state.bootstrap.outputs.vpc_id
 
   # Outbound to GitHub (HTTPS for API and actions download)
   egress {
@@ -49,7 +49,7 @@ resource "aws_security_group" "github_runner" {
 
 resource "aws_security_group" "vpc_endpoint" {
   name_prefix = "vpc-endpoint-sg-"
-  vpc_id      = data.terraform_remote_state.bootstrap.outputs.vpc_id[0].id
+  vpc_id      = data.terraform_remote_state.bootstrap.outputs.vpc_id
 
   # Allow HTTPS from private subnets
   ingress {

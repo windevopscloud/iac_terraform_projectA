@@ -1,5 +1,5 @@
 resource "aws_vpc_endpoint" "ssm" {
-  vpc_id              = data.terraform_remote_state.bootstrap.outputs.vpc_id[0].id
+  vpc_id              = data.terraform_remote_state.bootstrap.outputs.vpc_id
   service_name        = "com.amazonaws.${var.aws_region}.ssm"
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
@@ -13,7 +13,7 @@ resource "aws_vpc_endpoint" "ssm" {
 }
 
 resource "aws_vpc_endpoint" "ssm_messages" {
-  vpc_id              = data.terraform_remote_state.bootstrap.outputs.vpc_id[0].id
+  vpc_id              = data.terraform_remote_state.bootstrap.outputs.vpc_id
   service_name        = "com.amazonaws.${var.aws_region}.ssmmessages"
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
@@ -27,7 +27,7 @@ resource "aws_vpc_endpoint" "ssm_messages" {
 }
 
 resource "aws_vpc_endpoint" "ec2_messages" {
-  vpc_id              = data.terraform_remote_state.bootstrap.outputs.vpc_id[0].id
+  vpc_id              = data.terraform_remote_state.bootstrap.outputs.vpc_id
   service_name        = "com.amazonaws.${var.aws_region}.ec2messages"
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true

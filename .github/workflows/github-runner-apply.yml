@@ -23,7 +23,7 @@ env:
 jobs:
   terraform-apply:
     if: github.event.inputs.confirm == 'apply-dev'
-    runs-on: ubuntu-latest
+    runs-on: runner_projectA  # CHANGED: Use self-hosted runner
     environment: dev
     timeout-minutes: 60
     defaults:

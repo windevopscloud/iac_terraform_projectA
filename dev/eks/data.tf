@@ -8,8 +8,34 @@ data "terraform_remote_state" "bootstrap" {
   }
 }
 
+#data "aws_vpc" "selected" {
+#  id = data.terraform_remote_state.bootstrap.outputs.vpc_id
+#}
+
 data "aws_vpc" "selected" {
-  id = data.terraform_remote_state.bootstrap.outputs.vpc_vpc_id
+  filter {
+    name   = "tag:Environment"
+    values = [var.environment]
+  }
+}
+
+data "aws_subnets" "private" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.selected.id]
+  }
+  filter {
+    name   = "tag:Name"
+    values = ["private-*-poc"]
+  }
+}
+
+data "aws_route_tables" "private" {
+  vpc_id = data.aws_vpc.selected.id
+  filter {
+    name   = "tag:Name"
+    values = ["private-rt-*-poc"]
+  }
 }
 
 data "aws_eks_cluster_auth" "this" {
@@ -18,17 +44,6 @@ data "aws_eks_cluster_auth" "this" {
 
 data "aws_availability_zones" "available" {}
 
-data "aws_ami" "eks_optimized" {
-  most_recent = true
-  owners      = ["amazon"] # This is crucial
-
-  filter {
-    name   = "name"
-    values = ["amazon-eks-node-${var.eks_version}-v*"]
-  }
-
-  filter {
-    name   = "architecture"
-    values = ["x86_64"]
-  }
+data "aws_ssm_parameter" "eks_ami" {
+  name = "/aws/service/eks/optimized-ami/${var.eks_version}/amazon-linux-2/recommended/image_id"
 }

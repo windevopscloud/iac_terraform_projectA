@@ -8,7 +8,7 @@ variable "cluster_name" {
 variable "eks_version" {
   type        = string
   description = "Kubernetes version for EKS"
-  default     = "1.27"
+  default     = "1.30"
 }
 
 variable "private_subnets" {
@@ -69,4 +69,9 @@ variable "aws_region" {
   type        = string
   description = "AWS region"
   default     = "us-east-1"
+}
+
+variable "environment" {
+  type    = string
+  default = "poc"
 }

@@ -97,7 +97,7 @@ resource "aws_security_group_rule" "nodes_ingress_cluster" {
 #  from_port         = 22
 #  to_port           = 22
 #  protocol          = "tcp"
-#  cidr_blocks       = [var.github_runner_cidr]  # CIDR of your GitHub runner
+#  cidr_blocks       = [data.aws_vpc.selected.cidr_block]  # CIDR of your GitHub runner
 #  description       = "Allow SSH from GitHub runner"
 #  security_group_id = aws_security_group.eks_nodes_sg.id
 #}
@@ -108,7 +108,7 @@ resource "aws_security_group_rule" "nodes_egress_https_to_runner" {
   from_port         = 443
   to_port           = 443
   protocol          = "tcp"
-  cidr_blocks       = [var.github_runner_cidr]
+  cidr_blocks       = [data.aws_vpc.selected.cidr_block]
   description       = "Allow HTTPS to GitHub runner"
   security_group_id = aws_security_group.eks_nodes_sg.id
 }
@@ -119,7 +119,7 @@ resource "aws_security_group_rule" "cluster_ingress_api_from_runner" {
   from_port         = 443
   to_port           = 443
   protocol          = "tcp"
-  cidr_blocks       = [var.github_runner_cidr]
+  cidr_blocks       = [data.aws_vpc.selected.cidr_block]
   description       = "Allow Kubernetes API access from GitHub runner"
   security_group_id = aws_security_group.eks_cluster_sg.id # This goes on cluster SG
 }
@@ -130,7 +130,7 @@ resource "aws_security_group_rule" "nodes_ingress_custom_from_runner" {
   from_port         = 3000 # Example: Node.js app port
   to_port           = 3000
   protocol          = "tcp"
-  cidr_blocks       = [var.github_runner_cidr]
+  cidr_blocks       = [data.aws_vpc.selected.cidr_block]
   description       = "Allow custom service access from GitHub runner"
   security_group_id = aws_security_group.eks_nodes_sg.id
 }

@@ -29,7 +29,7 @@ variable "cluster_name" {
 variable "eks_version" {
   type        = string
   description = "Kubernetes version for EKS"
-  default     = "1.27"
+  default     = "1.30"
 }
 
 variable "private_subnets" {
@@ -84,10 +84,4 @@ variable "tags" {
   type        = map(string)
   description = "Common tags for all resources"
   default     = {}
-}
-
-variable "aws_region" {
-  type        = string
-  description = "AWS region"
-  default     = "us-east-1"
 }

@@ -12,17 +12,23 @@ data "aws_vpc" "selected" {
   id = data.terraform_remote_state.bootstrap.outputs.vpc_vpc_id
 }
 
-data "aws_ami" "ubuntu" {
+data "aws_eks_cluster_auth" "this" {
+  name = aws_eks_cluster.this.name  
+}}
+
+data "aws_availability_zones" "available" {}
+
+data "aws_ami" "eks_optimized" {
   most_recent = true
-  owners      = ["099720109477"] # Canonical
+  owners      = ["amazon"] # This is crucial
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+    values = ["amazon-eks-node-${var.eks_version}-v*"]
   }
 
   filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
+    name   = "architecture"
+    values = ["x86_64"]
   }
 }

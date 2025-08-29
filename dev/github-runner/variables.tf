@@ -1,22 +1,6 @@
-variable "aws_region" {
-  type    = string
-  default = "us-east-1"
-}
-
 variable "environment" {
   type    = string
   default = "poc"
-}
-
-variable "state_bucket_name" {
-  type        = string
-  description = "Unique S3 bucket name for Terraform state"
-  default     = "windevopscloud-terraform-s3"
-}
-
-variable "state_table_name" {
-  type    = string
-  default = "windevopscloud-terraform-lock"
 }
 
 variable "create_github_runner" {
@@ -29,6 +13,12 @@ variable "runner_version" {
   description = "Specify the github runner version"
   type        = string
   default     = "2.328.0"
+}
+
+variable "labels" {
+  description = "label for runner to trigger execution"
+  type = "string"
+  default =""
 }
 
 variable "runner_instance_type" {

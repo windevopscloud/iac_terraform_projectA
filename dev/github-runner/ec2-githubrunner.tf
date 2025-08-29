@@ -3,7 +3,7 @@ resource "aws_instance" "github_runner" {
 
   ami           = data.aws_ami.ubuntu.id
   instance_type = var.runner_instance_type
-  subnet_id     = data.terraform_remote_state.bootstrap.outputs.private_subnets[0] # Use first private subnet
+  subnet_id     = data.terraform_remote_state.bootstrap.outputs.vpc_private_subnets[0] # Use first private subnet
 
   vpc_security_group_ids = [aws_security_group.github_runner.id]
   iam_instance_profile   = aws_iam_instance_profile.github_runner.name
@@ -18,7 +18,7 @@ resource "aws_instance" "github_runner" {
     github_org        = var.github_organization
     github_repo       = var.github_repository
     runner_name       = "private-runner-${var.environment}"
-    labels            = "self-hosted,ubuntu,private,terraform,helm,k8s"
+    labels            = var.labels
     terraform_version = var.terraform_version
     helm_version      = var.helm_version
     kubectl_version   = var.kubectl_version

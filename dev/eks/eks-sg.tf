@@ -22,7 +22,7 @@ resource "aws_security_group_rule" "nodes_egress_vpce_https" {
   from_port         = 443
   to_port           = 443
   protocol          = "tcp"
-  cidr_blocks       = [data.aws_vpc.selected.cidr_block]  # Restrict to VPC CIDR
+  cidr_blocks       = [data.aws_vpc.selected.cidr_block] # Restrict to VPC CIDR
   security_group_id = aws_security_group.eks_nodes_sg.id
   description       = "Allow egress to VPC endpoints over HTTPS"
 }
@@ -55,7 +55,7 @@ resource "aws_security_group_rule" "nodes_egress_ntp" {
   from_port         = 123
   to_port           = 123
   protocol          = "udp"
-  cidr_blocks       = ["169.254.169.123/32"]  # Amazon Time Sync Service
+  cidr_blocks       = ["169.254.169.123/32"] # Amazon Time Sync Service
   security_group_id = aws_security_group.eks_nodes_sg.id
   description       = "Allow NTP time synchronization"
 }
@@ -115,19 +115,19 @@ resource "aws_security_group_rule" "nodes_egress_https_to_runner" {
 
 # Allow Kubernetes API access from GitHub runner (for kubectl, helm, etc.)
 resource "aws_security_group_rule" "cluster_ingress_api_from_runner" {
-  type                     = "ingress"
-  from_port                = 443
-  to_port                  = 443
-  protocol                 = "tcp"
-  cidr_blocks             = [var.github_runner_cidr]
-  description              = "Allow Kubernetes API access from GitHub runner"
-  security_group_id        = aws_security_group.eks_cluster_sg.id  # This goes on cluster SG
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = [var.github_runner_cidr]
+  description       = "Allow Kubernetes API access from GitHub runner"
+  security_group_id = aws_security_group.eks_cluster_sg.id # This goes on cluster SG
 }
 
 # Optional: Allow specific ports for custom services running on GitHub runner
 resource "aws_security_group_rule" "nodes_ingress_custom_from_runner" {
   type              = "ingress"
-  from_port         = 3000  # Example: Node.js app port
+  from_port         = 3000 # Example: Node.js app port
   to_port           = 3000
   protocol          = "tcp"
   cidr_blocks       = [var.github_runner_cidr]

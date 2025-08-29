@@ -5,8 +5,8 @@ resource "aws_launch_template" "eks_nodes" {
   name_prefix   = "${var.cluster_name}-lt"
   image_id      = data.aws_ami.eks_optimized.image_id
   instance_type = var.instance_types[0]
-  key_name      = var.key_name  # Add if you need SSH access
- 
+  key_name      = var.key_name # Add if you need SSH access
+
   network_interfaces {
     associate_public_ip_address = false
     security_groups             = [aws_security_group.eks_nodes_sg.id]
@@ -24,12 +24,12 @@ resource "aws_launch_template" "eks_nodes" {
 
   tag_specifications {
     resource_type = "instance"
-    tags = merge(var.tags, { Name = "${var.cluster_name}-node" })
+    tags          = merge(var.tags, { Name = "${var.cluster_name}-node" })
   }
 
   tag_specifications {
     resource_type = "volume"
-    tags = merge(var.tags, { Name = "${var.cluster_name}-node-volume" })
+    tags          = merge(var.tags, { Name = "${var.cluster_name}-node-volume" })
   }
 
   lifecycle {

@@ -13,8 +13,8 @@ data "aws_vpc" "selected" {
 }
 
 data "aws_eks_cluster_auth" "this" {
-  name = aws_eks_cluster.this.name  
-}}
+  name = aws_eks_cluster.this.name
+}
 
 data "aws_availability_zones" "available" {}
 

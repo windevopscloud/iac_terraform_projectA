@@ -20,7 +20,7 @@ env:
 
 jobs:
   terraform-plan:
-    runs-on: ubuntu-latest
+    runs-on: runner_projectA  # CHANGED: Use self-hosted runner
     environment: dev
     defaults:
       run:
@@ -29,12 +29,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4  # Updated to v4
+        uses: actions/checkout@v4
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "1.6.0"  # Pin Terraform version
+          terraform_version: "1.6.0"
           terraform_wrapper: false
 
       - name: Configure AWS credentials
@@ -57,29 +57,6 @@ jobs:
         run: |
           aws sts get-caller-identity
           echo "AWS Account ID: $(aws sts get-caller-identity --query Account --output text)"
-
-      #- name: Setup TFLint
-      #  uses: terraform-linters/setup-tflint@v3  # Updated to v3
-      #  with:
-      #    tflint_version: "v0.50.3"  # Pin TFLint version
-
-      #- name: Run TFLint
-      #  run: |
-      #    tflint --init
-      #    tflint --format=checkstyle | reviewdog -f=checkstyle -name="tflint" -reporter=github-pr-check
-
-      #- name: Run tfsec Scan
-      #  uses: aquasecurity/tfsec-action@v1.4.0  # Updated version
-      #  with:
-      #    soft_fail: true  # Don't fail the build on tfsec findings
-      #    output_format: sarif
-      #    output_file: tfsec.sarif
-
-      #- name: Upload tfsec results
-      #  uses: github/codeql-action/upload-sarif@v3
-      #  if: always()
-      #  with:
-      #    sarif_file: tfsec.sarif
 
       - name: Terraform Init
         run: |
@@ -111,23 +88,3 @@ jobs:
           name: terraform-plan
           path: dev/tfplan
           if-no-files-found: error
-
-      #- name: Comment PR with Plan Output
-      #  if: github.event_name == 'pull_request'
-      #  uses: actions/github-script@v7
-      #  with:
-      #    github-token: ${{ secrets.GITHUB_TOKEN }}
-      #    script: |
-      #      const fs = require('fs');
-      #      let planOutput = fs.readFileSync('dev/tfplan', 'utf8');
-      #      // Truncate if too long
-      #      if (planOutput.length > 65536) {
-      #        planOutput = planOutput.substring(0, 65536) + '\n\n... (output truncated due to length)';
-      #      }
-      #      const comment = `### Terraform Plan Output\n\n\`\`\`\n${planOutput}\n\`\`\``;
-      #      github.rest.issues.createComment({
-      #        issue_number: context.issue.number,
-      #        owner: context.repo.owner,
-      #        repo: context.repo.repo,
-      #        body: comment
-      #      });

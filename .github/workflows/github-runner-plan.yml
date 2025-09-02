@@ -17,13 +17,12 @@ env:
   VAR_BACKEND: dev
   AWS_REGION: "us-east-1"
   TF_WORKSPACE: dev
-  RUNNER: "runner_projectA"
   DIRECTORY: "./dev"
 
 jobs:
   terraform-plan:
-    runs-on: ${env.RUNNER}  # CHANGED: Use self-hosted runner
-    environment: ${env.VAR_BACKEND}
+    runs-on: runner_projectA  # CHANGED: Use self-hosted runner
+    environment: dev
     defaults:
       run:
         working-directory: ${{ env.DIRECTORY }}

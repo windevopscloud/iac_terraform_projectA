@@ -20,14 +20,13 @@ env:
   VAR_BACKEND: dev
   AWS_REGION: "us-east-1"
   TF_WORKSPACE: dev
-  RUNNER: "runner_projectA"
   DIRECTORY: "./dev"
 
 jobs:
   terraform-apply:
     if: github.event.inputs.confirm == 'apply-dev'
-    runs-on: ${env.RUNNER}  # CHANGED: Use self-hosted runner
-    environment: ${env.VAR_BACKEND}
+    runs-on: runner_projectA  # CHANGED: Use self-hosted runner
+    environment: dev
     timeout-minutes: 60
     defaults:
       run:

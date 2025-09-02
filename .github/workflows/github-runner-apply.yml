@@ -19,16 +19,19 @@ concurrency:
 env:
   VAR_BACKEND: dev
   AWS_REGION: "us-east-1"
+  TF_WORKSPACE: dev
+  RUNNER: "runner_projectA"
+  DIRECTORY: "./dev"
 
 jobs:
   terraform-apply:
     if: github.event.inputs.confirm == 'apply-dev'
-    runs-on: runner_projectA  # CHANGED: Use self-hosted runner
-    environment: dev
+    runs-on: ${RUNNER}  # CHANGED: Use self-hosted runner
+    environment: ${VAR_BACKEND}
     timeout-minutes: 60
     defaults:
       run:
-        working-directory: ./dev
+        working-directory: ${DIRECTORY}
 
     steps:
       - name: Checkout code
@@ -39,7 +42,7 @@ jobs:
         if: github.event.inputs.plan_artifact != ''
         with:
           name: ${{ github.event.inputs.plan_artifact }}
-          path: ./dev/
+          path: ${DIRECTORY}/
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -52,15 +55,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-      
-      - name: Store GitHub token in AWS SSM
-        run: |
-          aws ssm put-parameter \
-            --name "/github-runner/${{ github.repository }}/token" \
-            --value "${{ secrets.GH_RUNNER_TOKEN }}" \
-            --type SecureString \
-            --overwrite
-            
+              
       - name: Verify AWS permissions
         run: aws sts get-caller-identity
 
@@ -69,7 +64,7 @@ jobs:
 
       - name: Terraform Plan (if no plan provided)
         if: github.event.inputs.plan_artifact == ''
-        run: terraform plan -var-file="dev.tfvars" -out=tfplan -no-color
+        run: terraform plan -var-file="${VAR_BACKEND}.tfvars" -out=tfplan -no-color
 
       - name: Terraform Apply
         timeout-minutes: 30
@@ -78,7 +73,7 @@ jobs:
             terraform apply -input=false -no-color tfplan
           else
             echo "No plan file found. Applying with auto-approve"
-            terraform apply -var-file="dev.tfvars" -auto-approve -no-color
+            terraform apply -var-file="${VAR_BACKEND}.tfvars" -auto-approve -no-color
           fi
 
       - name: Capture Terraform Outputs
@@ -88,4 +83,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: terraform-outputs
-          path: dev/outputs.json
+          path: ${VAR_BACKEND}/outputs.json

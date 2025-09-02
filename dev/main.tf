@@ -1,7 +1,7 @@
 # Include all modules
 
 module "eks" {
-  source = "./eks" # Should point to actual module path
+  source = "./eks" # Should point to actual module path or repo url
 
   cluster_name = "${var.environment}-eks-cluster"
   eks_version  = var.eks_version

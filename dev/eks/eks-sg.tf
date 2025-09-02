@@ -103,15 +103,15 @@ resource "aws_security_group_rule" "nodes_ingress_cluster" {
 #}
 
 # Allow HTTPS from nodes to GitHub runner (if runner hosts internal services)
-resource "aws_security_group_rule" "nodes_egress_https_to_runner" {
-  type              = "egress"
-  from_port         = 443
-  to_port           = 443
-  protocol          = "tcp"
-  cidr_blocks       = [data.aws_vpc.selected.cidr_block]
-  description       = "Allow HTTPS to GitHub runner"
-  security_group_id = aws_security_group.eks_nodes_sg.id
-}
+#resource "aws_security_group_rule" "nodes_egress_https_to_runner" {
+#  type              = "egress"
+#  from_port         = 443
+#  to_port           = 443
+#  protocol          = "tcp"
+#  cidr_blocks       = [data.aws_vpc.selected.cidr_block]
+#  description       = "Allow HTTPS to GitHub runner"
+#  security_group_id = aws_security_group.eks_nodes_sg.id
+#}
 
 # Allow Kubernetes API access from GitHub runner (for kubectl, helm, etc.)
 resource "aws_security_group_rule" "cluster_ingress_api_from_runner" {

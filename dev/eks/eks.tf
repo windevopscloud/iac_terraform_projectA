@@ -22,7 +22,7 @@ resource "aws_eks_node_group" "this" {
     min_size     = var.min_size
   }
 
-  instance_types = var.instance_types
+  #instance_types = var.instance_types
 
   # Reference your launch template
   launch_template {

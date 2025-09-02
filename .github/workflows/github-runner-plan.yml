@@ -22,11 +22,11 @@ env:
 
 jobs:
   terraform-plan:
-    runs-on: ${RUNNER}  # CHANGED: Use self-hosted runner
-    environment: ${VAR_BACKEND}
+    runs-on: ${{ env.RUNNER }}  # CHANGED: Use self-hosted runner
+    environment: ${{ env.VAR_BACKEND }}
     defaults:
       run:
-        working-directory: ${DIRECTORY}
+        working-directory: ${{ env.DIRECTORY }}
         shell: bash
 
     steps:
@@ -79,5 +79,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: terraform-plan
-          path: ${VAR_BACKEND}/tfplan
+          path: ${{ env.VAR_BACKEND }}/tfplan
           if-no-files-found: error

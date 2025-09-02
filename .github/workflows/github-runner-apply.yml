@@ -26,12 +26,12 @@ env:
 jobs:
   terraform-apply:
     if: github.event.inputs.confirm == 'apply-dev'
-    runs-on: ${RUNNER}  # CHANGED: Use self-hosted runner
-    environment: ${VAR_BACKEND}
+    runs-on: ${{ env.RUNNER }}  # CHANGED: Use self-hosted runner
+    environment: ${{ env.VAR_BACKEND }}
     timeout-minutes: 60
     defaults:
       run:
-        working-directory: ${DIRECTORY}
+        working-directory: ${{ env.DIRECTORY }}
 
     steps:
       - name: Checkout code
@@ -42,7 +42,7 @@ jobs:
         if: github.event.inputs.plan_artifact != ''
         with:
           name: ${{ github.event.inputs.plan_artifact }}
-          path: ${DIRECTORY}/
+          path: ${{ env.DIRECTORY }}/
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -83,4 +83,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: terraform-outputs
-          path: ${VAR_BACKEND}/outputs.json
+          path: ${{ env.VAR_BACKEND }}/outputs.json

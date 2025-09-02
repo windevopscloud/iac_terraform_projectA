@@ -1,4 +1,4 @@
-state_bucket_name = "windevopscloud-terraform-bucket"
+state_bucket_name = "windevopscloud-terraform-s3"
 state_table_name  = "windevopscloud-terraform-lock"
 aws_region        = "us-east-1"
 environment       = "poc"

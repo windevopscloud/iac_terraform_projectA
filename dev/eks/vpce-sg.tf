@@ -1,4 +1,4 @@
-resource "aws_security_group" "vpc_endpoint" {
+resource "aws_security_group" "vpc_endpoint_eks" {
   name_prefix = "vpce-sg-eks"
   vpc_id      = data.aws_vpc.selected.id
   description = "Security group for VPC endpoints"

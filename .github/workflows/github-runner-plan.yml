@@ -22,8 +22,8 @@ env:
 
 jobs:
   terraform-plan:
-    runs-on: ${{ env.RUNNER }}  # CHANGED: Use self-hosted runner
-    environment: ${{ env.VAR_BACKEND }}
+    runs-on: ${env.RUNNER}  # CHANGED: Use self-hosted runner
+    environment: ${env.VAR_BACKEND}
     defaults:
       run:
         working-directory: ${{ env.DIRECTORY }}

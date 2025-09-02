@@ -26,8 +26,8 @@ env:
 jobs:
   terraform-apply:
     if: github.event.inputs.confirm == 'apply-dev'
-    runs-on: ${{ env.RUNNER }}  # CHANGED: Use self-hosted runner
-    environment: ${{ env.VAR_BACKEND }}
+    runs-on: ${env.RUNNER}  # CHANGED: Use self-hosted runner
+    environment: ${env.VAR_BACKEND}
     timeout-minutes: 60
     defaults:
       run:

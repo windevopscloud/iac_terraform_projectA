@@ -140,7 +140,7 @@ resource "aws_security_group_rule" "nodes_egress_limited_internet" {
   from_port         = 443
   to_port           = 443
   protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]  # Use specific IPs if possible
+  cidr_blocks       = ["0.0.0.0/0"] # Use specific IPs if possible
   security_group_id = aws_security_group.eks_nodes_sg.id
   description       = "Limited HTTPS internet access"
 }

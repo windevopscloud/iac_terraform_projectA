@@ -135,6 +135,15 @@ resource "aws_security_group_rule" "nodes_ingress_custom_from_runner" {
   security_group_id = aws_security_group.eks_nodes_sg.id
 }
 
+resource "aws_security_group_rule" "nodes_egress_limited_internet" {
+  type              = "egress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]  # Use specific IPs if possible
+  security_group_id = aws_security_group.eks_nodes_sg.id
+  description       = "Limited HTTPS internet access"
+}
 
 ################################################################
 resource "aws_security_group" "eks_cluster_sg" {

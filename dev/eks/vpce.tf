@@ -65,3 +65,17 @@ resource "aws_vpc_endpoint" "sts" {
     Name = "sts-vpc-endpoint"
   }
 }
+
+# EKS Endpoint (for Kubernetes API communication)
+resource "aws_vpc_endpoint" "eks" {
+  vpc_id              = data.aws_vpc.selected.id
+  service_name        = "com.amazonaws.${var.aws_region}.eks"
+  vpc_endpoint_type   = "Interface"
+  private_dns_enabled = true
+  subnet_ids          = data.aws_subnets.private.ids
+  security_group_ids  = [aws_security_group.vpc_endpoint_eks.id]
+
+  tags = {
+    Name = "eks-vpc-endpoint"
+  }
+}

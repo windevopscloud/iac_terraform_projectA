@@ -11,7 +11,7 @@ variable "environment" {
 variable "state_bucket_name" {
   type        = string
   description = "Unique S3 bucket name for Terraform state"
-  default     = "windevopscloud-terraform-statebkt"
+  default     = "windevopscloud-terraform-bucket"
 }
 
 variable "state_table_name" {

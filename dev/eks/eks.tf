@@ -22,8 +22,6 @@ resource "aws_eks_node_group" "this" {
     min_size     = var.min_size
   }
 
-  #instance_types = var.instance_types
-
   # Reference your launch template
   launch_template {
     id      = aws_launch_template.eks_nodes.id

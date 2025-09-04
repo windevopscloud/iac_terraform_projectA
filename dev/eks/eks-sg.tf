@@ -28,13 +28,13 @@ resource "aws_security_group_rule" "cluster_ingress_github_runner" {
 }
 
 resource "aws_security_group_rule" "github_runner_egress_cluster" {
-  type              = "egress"
-  from_port         = 443
-  to_port           = 443
-  protocol          = "tcp"
-  security_groups   = [aws_security_group.eks_cluster_sg.id]
-  security_group_id = data.aws_security_group.github_runner.id
-  description       = "Allow outbound to EKS API from GitHub runner"
+  type                     = "egress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.eks_cluster_sg.id
+  security_group_id        = data.aws_security_group.github_runner.id
+  description              = "Allow outbound to EKS API from GitHub runner"
 }
 
 ################################################################
@@ -111,12 +111,12 @@ resource "aws_security_group_rule" "nodes_ingress_github_runner" {
 }
 
 resource "aws_security_group_rule" "github_runner_egress_nodes" {
-  type              = "egress"
-  from_port         = 443
-  to_port           = 443
-  protocol          = "tcp"
-  security_groups   = [aws_security_group.eks_nodes_sg.id]
-  security_group_id = data.aws_security_group.github_runner.id
-  description       = "Allow outbound access to Nodes from GitHub runner"
+  type                     = "egress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.eks_nodes_sg.id
+  security_group_id        = data.aws_security_group.github_runner.id
+  description              = "Allow outbound access to Nodes from GitHub runner"
 }
 

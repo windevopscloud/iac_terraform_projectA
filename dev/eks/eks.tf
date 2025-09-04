@@ -7,6 +7,7 @@ resource "aws_eks_cluster" "this" {
     subnet_ids              = data.aws_subnets.private.ids
     endpoint_private_access = true  # Only accessible inside VPC
     endpoint_public_access  = false # Disable internet access
+    security_group_ids      = [aws_security_group.eks_cluster_sg.id]
   }
 }
 

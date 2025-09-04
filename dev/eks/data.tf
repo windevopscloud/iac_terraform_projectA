@@ -26,15 +26,20 @@ data "aws_subnets" "private" {
   }
   filter {
     name   = "tag:Name"
-    values = ["private-*-poc"]
+    values = ["private-*"]
   }
+}
+
+data "aws_subnet" "private_for_sg" {
+  for_each = toset(data.aws_subnets.private.ids)
+  id       = each.value
 }
 
 data "aws_route_tables" "private" {
   vpc_id = data.aws_vpc.selected.id
   filter {
     name   = "tag:Name"
-    values = ["private-rt-*-poc"]
+    values = ["private-rt-*"]
   }
 }
 

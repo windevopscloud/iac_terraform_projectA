@@ -1,7 +1,11 @@
 # Create private hosted zone for S3
 resource "aws_route53_zone" "s3" {
-  name    = "s3.amazonaws.com"
-  vpc_id  = data.aws_vpc.selected.id
+  name = "s3.amazonaws.com"
+
+  vpc {
+    vpc_id = data.aws_vpc.selected.id
+  }
+
   comment = "Private zone for S3 endpoint"
 }
 

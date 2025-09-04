@@ -28,11 +28,13 @@ resource "aws_vpc_endpoint" "ecr_dkr" {
 
 # S3 Gateway Endpoint (for S3 access - no additional cost)
 resource "aws_vpc_endpoint" "s3" {
-  vpc_id            = data.aws_vpc.selected.id
-  service_name      = "com.amazonaws.${var.aws_region}.s3"
-  vpc_endpoint_type = "Gateway"
-  route_table_ids   = data.aws_route_tables.private.ids
-
+  vpc_id              = data.aws_vpc.selected.id
+  service_name        = "com.amazonaws.${var.aws_region}.s3"
+  vpc_endpoint_type   = "Interface"
+  private_dns_enabled = true
+  subnet_ids          = data.aws_subnets.private.ids
+  #route_table_ids   = data.aws_route_tables.private.ids
+  security_group_ids = [aws_security_group.vpc_endpoint_eks_sg.id]
   tags = {
     Name = "s3-vpc-endpoint"
   }

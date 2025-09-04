@@ -1,5 +1,5 @@
 resource "aws_security_group" "eks_cluster_sg" {
-  name_prefix = "${var.cluster_name}-sg"
+  name_prefix = "${var.cluster_name}-cluster-sg"
   vpc_id      = data.aws_vpc.selected.id
   description = "Security group for EKS control plane"
 

@@ -2,9 +2,9 @@ data "terraform_remote_state" "bootstrap" {
   backend = "s3"
 
   config = {
-    bucket = "windevopscloud-terraform-bucket"
+    bucket = var.state_bucket_name
     key    = "bootstrap/terraform.tfstate"
-    region = "us-east-1"
+    region = var.aws_region
   }
 }
 

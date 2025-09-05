@@ -1,5 +1,5 @@
 resource "aws_eks_cluster" "this" {
-  name     = var.cluster_name
+  name     = var.eks_cluster_name
   version  = var.eks_version
   role_arn = aws_iam_role.eks_cluster.arn
 
@@ -13,14 +13,14 @@ resource "aws_eks_cluster" "this" {
 
 resource "aws_eks_node_group" "this" {
   cluster_name    = aws_eks_cluster.this.name
-  node_group_name = "${var.cluster_name}-nodegroup"
+  node_group_name = "${var.eks_cluster_name}-nodegroup"
   node_role_arn   = aws_iam_role.eks_nodes.arn
   subnet_ids      = data.aws_subnets.private.ids
 
   scaling_config {
-    desired_size = var.desired_size
-    max_size     = var.max_size
-    min_size     = var.min_size
+    desired_size = var.lt_desired_size
+    max_size     = var.lt_max_size
+    min_size     = var.lt_min_size
   }
 
   # Reference your launch template
@@ -29,9 +29,9 @@ resource "aws_eks_node_group" "this" {
     version = aws_launch_template.eks_nodes.latest_version
   }
 
-  #update_config {
-  #  max_unavailable = 1
-  #}
+  update_config {
+    max_unavailable = 1
+  }
 
   depends_on = [
     aws_iam_role_policy_attachment.eks_worker_node,

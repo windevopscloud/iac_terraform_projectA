@@ -3,15 +3,22 @@
 module "eks" {
   source = "./eks" # Should point to actual module path or repo url
 
-  cluster_name = "${var.environment}-eks-cluster"
-  eks_version  = var.eks_version
-  #vpc_id          = data.terraform_remote_state.network.outputs.vpc_id
-  #private_subnets = data.terraform_remote_state.network.outputs.private_subnets
-  desired_size   = var.desired_size
-  max_size       = var.max_size
-  min_size       = var.min_size
-  instance_types = var.instance_types
-  disk_size      = var.disk_size
+  environment          = var.environment
+  aws_region           = var.aws_region
+  state_bucket_name    = var.state_bucket_name
+  eks_cluster_name     = "${var.environment}-eks-cluster"
+  eks_version          = var.eks_version
+  eks_addon_coredns    = var.eks_addon_coredns
+  eks_addon_kube_proxy = var.eks_addon_kube_proxy
+  eks_addon_vpc_cni    = var.eks_addon_vpc_cni
+  vpc_id               = local.vpc_id
+  private_subnets      = local.private_subnets
+  lt_desired_size      = var.lt_desired_size
+  lt_max_size          = var.lt_max_size
+  lt_min_size          = var.lt_min_size
+  lt_instance_types    = var.lt_instance_types
+  lt_disk_size         = var.lt_disk_size
+  lt_key_name          = var.lt_key_name
 
   tags = {
     Environment = var.environment

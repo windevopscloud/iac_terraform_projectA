@@ -3,6 +3,9 @@
 module "eks" {
   source = "./eks" # Should point to actual module path or repo url
 
+  environment          = var.environment
+  aws_region           = var.aws_region
+  state_bucket_name    = var.state_bucket_name
   eks_cluster_name     = "${var.environment}-eks-cluster"
   eks_version          = var.eks_version
   eks_addon_coredns    = var.eks_addon_coredns
@@ -15,6 +18,7 @@ module "eks" {
   lt_min_size       = var.lt_min_size
   lt_instance_types = var.lt_instance_types
   lt_disk_size      = var.lt_disk_size
+  lt_key_name       = var.lt_key_name
 
   tags = {
     Environment = var.environment

@@ -16,6 +16,16 @@ variable "state_bucket_name" {
 }
 
 # variables.tf - ADD THESE VARIABLES
+variable "vpc_id" {
+  type        = string
+  description = "VPC ID for EKS cluster"
+}
+
+variable "private_subnets" {
+  type        = string
+  description = "Private subnet id's for EKS cluster"
+}
+
 variable "eks_cluster_name" {
   type        = string
   description = "Name of the EKS cluster"

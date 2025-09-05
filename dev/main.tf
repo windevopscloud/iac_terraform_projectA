@@ -11,14 +11,14 @@ module "eks" {
   eks_addon_coredns    = var.eks_addon_coredns
   eks_addon_kube_proxy = var.eks_addon_kube_proxy
   eks_addon_vpc_cni    = var.eks_addon_vpc_cni
-  #vpc_id          = data.terraform_remote_state.network.outputs.vpc_id
-  #private_subnets = data.terraform_remote_state.network.outputs.private_subnets
-  lt_desired_size   = var.lt_desired_size
-  lt_max_size       = var.lt_max_size
-  lt_min_size       = var.lt_min_size
-  lt_instance_types = var.lt_instance_types
-  lt_disk_size      = var.lt_disk_size
-  lt_key_name       = var.lt_key_name
+  vpc_id               = local.vpc_id
+  private_subnets      = local.private_subnet_ids
+  lt_desired_size      = var.lt_desired_size
+  lt_max_size          = var.lt_max_size
+  lt_min_size          = var.lt_min_size
+  lt_instance_types    = var.lt_instance_types
+  lt_disk_size         = var.lt_disk_size
+  lt_key_name          = var.lt_key_name
 
   tags = {
     Environment = var.environment

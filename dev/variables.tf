@@ -42,12 +42,6 @@ variable "eks_version" {
   #default     = "1.30"
 }
 
-variable "private_subnets" {
-  type        = list(string)
-  description = "List of private subnet IDs for EKS"
-  #default     = []
-}
-
 variable "lt_desired_size" {
   type        = number
   description = "Desired number of worker nodes"

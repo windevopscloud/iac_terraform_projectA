@@ -66,4 +66,3 @@ data "aws_security_group" "vpc_endpoint_ssm" {
     values = ["vpc-endpoint-sg-ssm"]
   }
 }
-

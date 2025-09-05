@@ -19,17 +19,6 @@ variable "state_table_name" {
   #default = "windevopscloud-terraform-lock"
 }
 
-# variables.tf - ADD THESE VARIABLES
-variable "vpc_id" {
-  type        = string
-  description = "VPC ID for EKS cluster"
-}
-
-variable "private_subnets" {
-  type        = string
-  description = "Private subnet id's for EKS cluster"
-}
-
 variable "eks_cluster_name" {
   type        = string
   description = "Name of the EKS cluster"
@@ -81,7 +70,7 @@ variable "lt_key_name" {
 variable "tags" {
   type        = map(string)
   description = "Common tags for all resources"
-  #default     = {}
+  default     = {}
 }
 
 variable "eks_addon_kube_proxy" {

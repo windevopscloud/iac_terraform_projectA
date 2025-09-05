@@ -74,12 +74,6 @@ variable "lt_key_name" {
   #default     = null
 }
 
-variable "github_runner_cidr" {
-  type        = string
-  description = "CIDR block of GitHub runner for access"
-  #default     = null
-}
-
 variable "tags" {
   type        = map(string)
   description = "Common tags for all resources"

@@ -1,9 +1,9 @@
 resource "aws_security_group" "eks_cluster_sg" {
-  name_prefix = "${var.cluster_name}-sg"
+  name_prefix = "${var.eks_cluster_name}-sg"
   vpc_id      = data.aws_vpc.selected.id
   description = "Security group for EKS control plane"
 
-  tags = merge(var.tags, { Name = "${var.cluster_name}-cluster-sg" })
+  tags = merge(var.tags, { Name = "${var.eks_cluster_name}-cluster-sg" })
 }
 
 # Allow worker nodes to communicate with control plane
@@ -39,11 +39,11 @@ resource "aws_security_group_rule" "github_runner_egress_cluster" {
 
 ################################################################
 resource "aws_security_group" "eks_nodes_sg" {
-  name_prefix = "${var.cluster_name}-nodes-sg"
+  name_prefix = "${var.eks_cluster_name}-nodes-sg"
   vpc_id      = data.aws_vpc.selected.id
   description = "Security group for EKS worker nodes with GitHub runner access"
 
-  tags = merge(var.tags, { Name = "${var.cluster_name}-nodes-sg" })
+  tags = merge(var.tags, { Name = "${var.eks_cluster_name}-nodes-sg" })
 }
 
 resource "aws_security_group_rule" "nodes_ingress_cluster" {

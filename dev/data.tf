@@ -10,5 +10,5 @@ data "terraform_remote_state" "bootstrap" {
 
 locals {
   vpc_id             = data.terraform_remote_state.bootstrap.outputs.vpc_id
-  private_subnet_ids = data.terraform_remote_state.bootstrap.outputs.private_subnets
+  private_subnets    = data.terraform_remote_state.bootstrap.outputs.private_subnets
 }

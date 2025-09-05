@@ -12,7 +12,7 @@ module "eks" {
   eks_addon_kube_proxy = var.eks_addon_kube_proxy
   eks_addon_vpc_cni    = var.eks_addon_vpc_cni
   vpc_id               = local.vpc_id
-  private_subnets      = local.private_subnet_ids
+  private_subnets      = local.private_subnets
   lt_desired_size      = var.lt_desired_size
   lt_max_size          = var.lt_max_size
   lt_min_size          = var.lt_min_size

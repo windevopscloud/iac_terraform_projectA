@@ -1,5 +1,5 @@
 resource "aws_security_group" "eks_cluster_sg" {
-  name_prefix = "${var.cluster_name}-cluster-sg"
+  name_prefix = "${var.cluster_name}-sg"
   vpc_id      = data.aws_vpc.selected.id
   description = "Security group for EKS control plane"
 
@@ -120,3 +120,13 @@ resource "aws_security_group_rule" "github_runner_egress_nodes" {
   description              = "Allow outbound access to Nodes from GitHub runner"
 }
 
+# Allow DNS resolution (UDP 53 to VPC DNS)
+resource "aws_security_group_rule" "nodes_egress_dns" {
+  type              = "egress"
+  from_port         = 53
+  to_port           = 53
+  protocol          = "udp"
+  cidr_blocks       = [for subnet in data.aws_subnet.private_for_sg : subnet.cidr_block] # Only private subnets
+  security_group_id = aws_security_group.eks_nodes_sg.id
+  description       = "Allow DNS resolution within VPC"
+}

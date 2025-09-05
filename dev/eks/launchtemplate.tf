@@ -4,7 +4,7 @@
 resource "aws_launch_template" "eks_nodes" {
   name_prefix   = "${var.eks_cluster_name}-lt"
   image_id      = data.aws_ssm_parameter.eks_ami.value
-  instance_type = var.lt_min_sizevar.lt_instance_types[0]
+  instance_type = var.lt_instance_types[0]
   key_name      = var.lt_key_name # Add if you need SSH access
 
   network_interfaces {

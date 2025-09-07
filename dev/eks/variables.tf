@@ -99,12 +99,12 @@ variable "eks_addon_vpc_cni" {
 }
 
 variable "eks_tools_ami_id" {
-  type = string
+  type        = string
   description = "AMI for EKS Tools EC2 Instance"
 }
 
 variable "eks_tools_instance_type" {
-  type        = list(string)
+  type        = string
   description = "List of instance types for worker nodes"
   #default     = ["t3.medium"]
 }

@@ -3,7 +3,7 @@ resource "aws_security_group" "eks_cluster_sg" {
   vpc_id      = data.aws_vpc.selected.id
   description = "Security group for EKS control plane"
 
-  tags = merge(var.tags, { Name = "${var.eks_cluster_name}-cluster-sg" })
+  tags = merge(var.tags, { Name = "${var.eks_cluster_name}-sg" })
 }
 
 # Allow worker nodes to communicate with control plane

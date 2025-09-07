@@ -1,7 +1,7 @@
-resource "aws_instance" "eks_admin" {
-  
+resource "aws_instance" "eks_tools" {
+
   ami           = var.eks_tools_ami_id
-  instance_type = var.eks_tools_instance_type[0]
+  instance_type = var.eks_tools_instance_type
   subnet_id     = data.aws_subnets.private.ids[0] # Use first private subnet
 
   vpc_security_group_ids = [aws_security_group.eks_tools_sg.id]

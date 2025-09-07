@@ -5,7 +5,6 @@ on:
     branches: [ "dev" ]
     #paths:
     #  - 'dev/**'  # Only trigger when dev directory changes
-
   workflow_dispatch:
     inputs:
       terraform_flags:
@@ -17,20 +16,76 @@ env:
   VAR_BACKEND: dev
   AWS_REGION: "us-east-1"
   TF_WORKSPACE: dev
-  DIRECTORY: "./dev"
+  TF_DIRECTORY: "./dev"
+  PK_DIRECTORY: "./dev/eks/packer"
 
 jobs:
-  terraform-plan:
-    runs-on: runner_projectA  # CHANGED: Use self-hosted runner
-    environment: dev
-    defaults:
-      run:
-        working-directory: ${{ env.DIRECTORY }}
-        shell: bash
 
+  build-ami:
+    runs-on: runner_projectA
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Detect changes in packer folder
+        id: packer_check
+        run: |
+          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q '^dev/eks/packer/'; then
+            echo "PACKER_CHANGED=true" >> $GITHUB_ENV
+          else
+            echo "PACKER_CHANGED=false" >> $GITHUB_ENV
+          fi
+
+      - name: Setup Packer
+        if: env.PACKER_CHANGED == 'true'
+        uses: hashicorp/setup-packer@v2
+        with:
+          version: "1.11.0"
+
+      - name: Build EKS Tools AMI
+        if: env.PACKER_CHANGED == 'true'
+        working-directory: ${{ env.PK_DIRECTORY }}
+        run: |
+          echo "Changes detected in packer folder. Building new AMI..."
+          packer init .
+          packer build -machine-readable eks-tools-ami.pkr.hcl | tee build.log
+          AMI_ID=$(grep 'artifact,0,id' build.log | cut -d, -f6 | cut -d: -f2)
+          echo "$AMI_ID" > ami_id.txt
+          echo "AMI_ID=$AMI_ID"
+
+      - name: Upload AMI ID artifact
+        if: env.PACKER_CHANGED == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ami_id
+          path: ${{ env.PK_DIRECTORY }}/ami_id.txt
+
+  terraform-plan:
+    runs-on: runner_projectA
+    environment: dev
+    defaults:
+      run:
+        working-directory: ${{ env.TF_DIRECTORY }}
+        shell: bash
+    needs: [build-ami]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download AMI ID artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ami_id
+          path: .
+
+      - name: Read AMI ID
+        run: |
+          if [ -f ami_id.txt ]; then
+            export EKS_TOOLS_AMI_ID=$(cat ami_id.txt)
+          else
+            echo "No new AMI built, using existing AMI variable"
+          fi
+          echo "EKS_TOOLS_AMI_ID=$EKS_TOOLS_AMI_ID"
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -47,8 +102,7 @@ jobs:
           mask-aws-account-id: true
                
       - name: Verify AWS CLI
-        run: |
-          aws sts get-caller-identity
+        run: aws sts get-caller-identity
 
       - name: Terraform Init
         run: |
@@ -69,6 +123,7 @@ jobs:
         run: |
           terraform plan \
             -var-file="${VAR_BACKEND}.tfvars" \
+            -var="eks_tools_ami_id=${EKS_TOOLS_AMI_ID}" \
             -input=false \
             -no-color \
             -out=tfplan \
@@ -78,5 +133,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: terraform-plan
-          path: ${{ env.VAR_BACKEND }}/tfplan
+          path: ${{ env.TF_DIRECTORY }}/tfplan
           if-no-files-found: error

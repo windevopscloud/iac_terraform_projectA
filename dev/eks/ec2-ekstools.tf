@@ -5,7 +5,7 @@ resource "aws_instance" "eks_tools" {
   subnet_id     = data.aws_subnets.private.ids[0] # Use first private subnet
 
   vpc_security_group_ids = [aws_security_group.eks_tools_sg.id]
-  iam_instance_profile   = aws_iam_instance_profile.eks_tools.name
+  iam_instance_profile = aws_iam_instance_profile.eks_tools.name
 
   # Root volume
   root_block_device {

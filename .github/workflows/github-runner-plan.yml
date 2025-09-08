@@ -121,8 +121,8 @@ jobs:
             -backend-config=${VAR_BACKEND}-backend.hcl \
             -input=false
 
-      #- name: Terraform Validate
-      #  run: terraform validate -no-color
+      - name: Terraform Validate
+        run: terraform validate -no-color
 
       - name: Terraform Format Check
         run: |

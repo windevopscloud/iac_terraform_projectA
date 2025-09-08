@@ -73,7 +73,7 @@ data "aws_ami" "eks_tools" {
 
   filter {
     name   = "name"
-    values = ["eks-tools-${var.environment}-*"]
+    values = ["eks-tools-ami-*"]
   }
 
   filter {

@@ -98,11 +98,6 @@ variable "eks_addon_vpc_cni" {
   #default     = v1.20.1-eksbuild.3
 }
 
-variable "eks_tools_ami_id" {
-  type        = string
-  description = "AMI for EKS Tools EC2 Instance"
-}
-
 variable "eks_tools_instance_type" {
   type        = string
   description = "List of instance types for worker nodes"

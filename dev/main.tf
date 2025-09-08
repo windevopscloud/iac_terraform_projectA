@@ -19,6 +19,7 @@ module "eks" {
   lt_instance_types    = var.lt_instance_types
   lt_disk_size         = var.lt_disk_size
   lt_key_name          = var.lt_key_name
+  eks_tools_instance_type = var.eks_tools_instance_type
 
   tags = {
     Environment = var.environment

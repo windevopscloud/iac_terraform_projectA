@@ -3,8 +3,6 @@ name: github-runner-plan
 on:
   pull_request:
     branches: [ "dev" ]
-    #paths:
-    #  - 'dev/**'  # Only trigger when dev directory changes
   workflow_dispatch:
     inputs:
       terraform_flags:
@@ -18,6 +16,7 @@ env:
   TF_WORKSPACE: dev
   TF_DIRECTORY: "./dev"
   PK_DIRECTORY: "./dev/eks/packer"
+  AMI_NAME_PREFIX: "eks-tools"
 
 jobs:
 
@@ -36,29 +35,38 @@ jobs:
             echo "PACKER_CHANGED=false" >> $GITHUB_ENV
           fi
 
+      - name: Check if AMI exists
+        id: ami_check
+        run: |
+          AMI_ID=$(aws ec2 describe-images \
+            --owners self \
+            --filters "Name=name,Values=${{ env.AMI_NAME_PREFIX }}-*" \
+            --query 'Images | sort_by(@, &CreationDate)[-1].ImageId' \
+            --output text)
+
+          if [ "$AMI_ID" = "None" ]; then
+            echo "AMI_EXISTS=false" >> $GITHUB_ENV
+          else
+            echo "AMI_EXISTS=true" >> $GITHUB_ENV
+            echo "EKS_TOOLS_AMI_ID=$AMI_ID" >> $GITHUB_ENV
+          fi
+
       - name: Setup Packer
-        if: env.PACKER_CHANGED == 'true'
+        if: env.PACKER_CHANGED == 'true' || env.AMI_EXISTS == 'false'
         uses: hashicorp/setup-packer@v2
         with:
           version: "1.11.0"
 
       - name: Build EKS Tools AMI
-        if: env.PACKER_CHANGED == 'true'
+        if: env.PACKER_CHANGED == 'true' || env.AMI_EXISTS == 'false'
         working-directory: ${{ env.PK_DIRECTORY }}
         run: |
-          echo "Changes detected in packer folder. Building new AMI..."
+          echo "Building new AMI..."
           packer init .
           packer build -machine-readable eks-tools-ami.pkr.hcl | tee build.log
           AMI_ID=$(grep 'artifact,0,id' build.log | cut -d, -f6 | cut -d: -f2)
-          echo "$AMI_ID" > ami_id.txt
-          echo "AMI_ID=$AMI_ID"
-
-      - name: Upload AMI ID artifact
-        if: env.PACKER_CHANGED == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ami_id
-          path: ${{ env.PK_DIRECTORY }}/ami_id.txt
+          echo "EKS_TOOLS_AMI_ID=$AMI_ID" >> $GITHUB_ENV
+          echo "New AMI_ID=$AMI_ID"
 
   terraform-plan:
     runs-on: runner_projectA
@@ -71,21 +79,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Download AMI ID artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: ami_id
-          path: .
-
-      - name: Read AMI ID
-        run: |
-          if [ -f ami_id.txt ]; then
-            export EKS_TOOLS_AMI_ID=$(cat ami_id.txt)
-          else
-            echo "No new AMI built, using existing AMI variable"
-          fi
-          echo "EKS_TOOLS_AMI_ID=$EKS_TOOLS_AMI_ID"
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -100,7 +93,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
           mask-aws-account-id: true
-               
+
       - name: Verify AWS CLI
         run: aws sts get-caller-identity
 

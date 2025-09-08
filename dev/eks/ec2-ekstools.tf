@@ -1,6 +1,6 @@
 resource "aws_instance" "eks_tools" {
 
-  ami           = var.eks_tools_ami_id
+  ami           = data.aws_ami.eks_tools.id
   instance_type = var.eks_tools_instance_type
   subnet_id     = data.aws_subnets.private.ids[0] # Use first private subnet
 

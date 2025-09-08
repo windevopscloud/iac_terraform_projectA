@@ -40,13 +40,16 @@ jobs:
         run: |
           AMI_ID=$(aws ec2 describe-images \
             --owners self \
+            --region ${{ env.AWS_REGION }} \
             --filters "Name=name,Values=${{ env.AMI_NAME_PREFIX }}-*" \
             --query 'Images | sort_by(@, &CreationDate)[-1].ImageId' \
             --output text)
 
-          if [ "$AMI_ID" = "None" ]; then
+          if [ "$AMI_ID" = "None" ] || [ -z "$AMI_ID" ]; then
+            echo "No AMI found"
             echo "AMI_EXISTS=false" >> $GITHUB_ENV
           else
+            echo "Found AMI: $AMI_ID"
             echo "AMI_EXISTS=true" >> $GITHUB_ENV
             echo "EKS_TOOLS_AMI_ID=$AMI_ID" >> $GITHUB_ENV
           fi

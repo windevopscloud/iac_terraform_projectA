@@ -23,6 +23,8 @@ jobs:
   build-ami:
     runs-on: runner_projectA
     environment: dev
+    env:
+      HOME: /tmp
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

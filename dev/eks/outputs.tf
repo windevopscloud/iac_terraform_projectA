@@ -8,3 +8,8 @@ output "cluster_name" {
   description = "Kubernetes Cluster Name"
   value       = aws_eks_cluster.this.name
 }
+
+# Output for internal/external reference
+output "eks_tools_instance_profile" {
+  value = aws_iam_instance_profile.eks_tools.name
+}

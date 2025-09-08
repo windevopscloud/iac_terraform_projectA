@@ -43,7 +43,7 @@ resource "aws_iam_role_policy" "eks_tools_cluster_access" {
 # Instance Profile for EC2
 resource "aws_iam_instance_profile" "eks_tools" {
   name_prefix = "eks-tools-profile-"
-  role = aws_iam_role.eks_tools.name
+  role        = aws_iam_role.eks_tools.name
 }
 
 #Kubernetes ClusterRole and ClusterRoleBinding

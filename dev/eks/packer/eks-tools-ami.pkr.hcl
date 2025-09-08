@@ -1,3 +1,13 @@
+# provider.hcl
+packer {
+  required_plugins {
+    amazon = {
+      version = ">= 1.0.0"
+      source  = "github.com/hashicorp/amazon"
+    }
+  }
+}
+
 source "amazon-ebs" "eks_tools" {
   region        = var.region
   instance_type = var.instance_type
@@ -24,22 +34,22 @@ build {
       "set -eux",
 
       # Install base tools
-      "dnf install -y unzip tar gzip git jq curl amazon-ssm-agent telnet bind-utils nmap-ncat docker",
+      "sudo dnf install -y unzip tar gzip git jq amazon-ssm-agent telnet bind-utils nmap-ncat docker",
 
-      "systemctl enable amazon-ssm-agent",
-      "systemctl start amazon-ssm-agent",
-      "systemctl enable docker",
-      "systemctl start docker",
+      "sudo systemctl enable amazon-ssm-agent",
+      "sudo systemctl start amazon-ssm-agent",
+      "sudo systemctl enable docker",
+      "sudo systemctl start docker",
 
       # kubectl
-      "curl -o /usr/local/bin/kubectl https://amazon-eks.s3.${var.region}.amazonaws.com/${var.eks_version}/${var.kubectl_date}/bin/linux/amd64/kubectl",
-      "chmod +x /usr/local/bin/kubectl",
+      "sudo curl -o /usr/local/bin/kubectl https://amazon-eks.s3.${var.region}.amazonaws.com/${var.eks_version}/${var.kubectl_date}/bin/linux/amd64/kubectl",
+      "sudo chmod +x /usr/local/bin/kubectl",
 
       # eksctl
-      "curl -sL https://github.com/eksctl-io/eksctl/releases/${var.eksctl_version}/download/eksctl_Linux_amd64.tar.gz | tar xz -C /usr/local/bin",
+      "sudo curl -sL https://github.com/eksctl-io/eksctl/releases/${var.eksctl_version}/download/eksctl_Linux_amd64.tar.gz | sudo tar xz -C /usr/local/bin",
 
       # helm
-      "curl -fsSL https://get.helm.sh/helm-v${var.helm_version}-linux-amd64.tar.gz | tar xz -C /usr/local/bin --strip-components=1 linux-amd64/helm"
+      "sudo curl -fsSL https://get.helm.sh/helm-v${var.helm_version}-linux-amd64.tar.gz | sudo tar xz -C /usr/local/bin --strip-components=1 linux-amd64/helm"
     ]
   }
 

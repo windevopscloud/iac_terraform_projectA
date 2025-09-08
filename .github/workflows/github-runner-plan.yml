@@ -78,10 +78,21 @@ jobs:
         if: env.PACKER_CHANGED == 'true' || env.AMI_EXISTS == 'false'
         working-directory: ${{ env.PK_DIRECTORY }}
         run: |
+          set -euo pipefail
           echo "Building new AMI..."
           packer init .
+          # Capture exit code properly
           packer build -machine-readable eks-tools-ami.pkr.hcl | tee build.log
+          BUILD_EXIT_CODE=${PIPESTATUS[0]}
+          if [ $BUILD_EXIT_CODE -ne 0 ]; then
+            echo "Packer build failed!"
+            exit $BUILD_EXIT_CODE
+          fi
           AMI_ID=$(grep 'artifact,0,id' build.log | cut -d, -f6 | cut -d: -f2)
+          if [ -z "$AMI_ID" ] || [ "$AMI_ID" = "None" ]; then
+            echo "Failed to extract AMI_ID from Packer log"
+            exit 1
+          fi
           echo "EKS_TOOLS_AMI_ID=$AMI_ID" >> $GITHUB_ENV
           echo "New AMI_ID=$AMI_ID"
 

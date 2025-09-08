@@ -20,7 +20,7 @@ variable "ssh_username" {
 
 variable "eks_version" {
   type = string
-  default = 1.30.14
+  default = "1.30.14"
 }
 
 variable "kubectl_date" {

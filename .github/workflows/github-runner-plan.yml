@@ -73,6 +73,7 @@ jobs:
         uses: hashicorp/setup-packer@v2
         with:
           version: "1.14.2"
+          run: packer version
 
       - name: Install Packer Amazon plugin
         if: env.PACKER_CHANGED == 'true' || env.AMI_EXISTS == 'false'

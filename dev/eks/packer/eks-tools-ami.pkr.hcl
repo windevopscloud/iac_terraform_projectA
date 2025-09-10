@@ -37,8 +37,8 @@ source "amazon-ebs" "eks_tools" {
   # IAM instance profile - does not support filter
   iam_instance_profile = var.iam_instance_profile_name
 
-  #ssh_username = var.ssh_username
-  communicator = "ssm"
+  ssh_username = var.ssh_username
+  communicator = "ssh"
   ssh_timeout  = "5m"
 
   source_ami_filter {
@@ -50,6 +50,33 @@ source "amazon-ebs" "eks_tools" {
     owners      = ["137112412989"]
     most_recent = true
   }
+  user_data = <<-EOF
+    #!/bin/bash
+    exec > >(tee /var/log/user-data-debug.log) 2>&1
+
+    echo "=== USER DATA DEBUG START ==="
+    echo "Timestamp: $(date)"
+
+    dnf install -y openssh-server
+    systemctl enable sshd
+    systemctl start sshd
+
+    echo "SSH status:"
+    systemctl status sshd || true
+
+    echo "Listening ports:"
+    netstat -tlnp || ss -tlnp || true
+
+    echo "IP address:"
+    ip addr show
+
+    cloud-init status --wait || true
+
+    echo "=== USER DATA DEBUG COMPLETE ==="
+
+    # Keep instance alive for debugging
+    sleep 300
+  EOF
 }
 
 build {

@@ -34,12 +34,8 @@ source "amazon-ebs" "eks_tools" {
     }
   }
   
-  # IAM instance profile - using filter  syntax
-  iam_instance_profile_filter {
-    filters = {
-      "name" = "github-runner-profile-*"
-    }
-  }
+  # IAM instance profile - does not support filter
+  iam_instance_profile = var.iam_instance_profile_name
 
   communicator = "ssm"
   ssh_timeout  = "10m"

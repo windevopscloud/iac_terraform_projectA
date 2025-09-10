@@ -8,6 +8,11 @@ variable "environment" {
   default = "poc"
 }
 
+variable "iam_instance_profile_name" {
+  type    = string
+  default = "github-runner-profile"
+}
+
 variable "instance_type" {
   type    = string
   default = "t3.medium"

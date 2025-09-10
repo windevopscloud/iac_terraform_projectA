@@ -37,8 +37,12 @@ source "amazon-ebs" "eks_tools" {
     }
   }
   
-  # IAM instance profile - use argument syntax, not block
-  iam_instance_profile = var.iam_instance_profile_name  # Pass as variable
+  # IAM instance profile - using filter  syntax
+  iam_instance_profile = {
+    filters = {
+      "name" = "github-runner-profile-*"
+    }
+  }
 
   communicator = "ssm"
   ssh_timeout  = "10m"

@@ -3,6 +3,11 @@ variable "region" {
   default = "us-east-1"
 }
 
+variable "environment" {
+  type    = string
+  default = "poc"
+}
+
 variable "instance_type" {
   type    = string
   default = "t3.medium"

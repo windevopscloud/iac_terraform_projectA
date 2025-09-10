@@ -3,11 +3,6 @@ variable "region" {
   default = "us-east-1"
 }
 
-variable "environment" {
-  type    = string
-  default = "poc"
-}
-
 variable "iam_instance_profile_name" {
   type    = string
   default = "github-runner-profile"

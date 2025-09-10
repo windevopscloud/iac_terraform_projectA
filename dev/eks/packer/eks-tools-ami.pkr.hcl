@@ -16,14 +16,14 @@ source "amazon-ebs" "eks_tools" {
   # VPC ID - use a single filter
   vpc_filter {
     filters = {
-      "tag:Environment" = var.environment
+      "tag:Name" = "vpc-*"
     }
   }
   
   # Subnet filter - only one subnet_filter block allowed
   subnet_filter {
     filters = {
-      "tag:Name" = "private-*"
+      "tag:Name" = "private-1-*"
     }
   }
   

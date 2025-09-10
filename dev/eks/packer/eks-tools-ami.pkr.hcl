@@ -37,7 +37,8 @@ source "amazon-ebs" "eks_tools" {
   # IAM instance profile - does not support filter
   iam_instance_profile = var.iam_instance_profile_name
 
-  communicator = "ssm"
+  ssh_username = var.ssh_username
+  communicator = "ssh"
   ssh_timeout  = "10m"
 
   source_ami_filter {

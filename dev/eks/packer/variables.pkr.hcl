@@ -3,16 +3,6 @@ variable "region" {
   default = "us-east-1"
 }
 
-variable "vpc_id" {
-  type    = string
-  description = "VPC ID discovered from Terraform"
-}
-
-variable "iam_instance_profile_name" {
-  type    = string
-  description = "IAM instance profile name discovered from Terraform"
-}
-
 variable "instance_type" {
   type    = string
   default = "t3.medium"

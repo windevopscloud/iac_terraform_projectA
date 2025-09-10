@@ -96,7 +96,7 @@ jobs:
           set -euo pipefail
           echo "Building new AMI..."
           packer build . | tee build.log
-          AMI_ID=$(grep 'artifact,0,id' build.log | cut -d, -f6 | cut -d: -f2)
+          AMI_ID=$(grep 'artifact,0,id' build.log | cut -d: -f2)
           if [ -z "$AMI_ID" ]; then
             echo "ERROR: Packer build failed. AMI not created."
             exit 1

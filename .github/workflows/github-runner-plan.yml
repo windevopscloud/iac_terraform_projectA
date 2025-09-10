@@ -80,7 +80,8 @@ jobs:
         run: |
           mkdir -p $HOME/.packer.d/plugins
           packer plugins install github.com/hashicorp/amazon
-          
+          packer plugins installed
+
       - name: Init Packer
         if: env.PACKER_CHANGED == 'true' || env.AMI_EXISTS == 'false'
         working-directory: ${{ env.PK_DIRECTORY }}

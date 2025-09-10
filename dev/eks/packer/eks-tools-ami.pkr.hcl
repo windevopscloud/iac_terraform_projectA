@@ -25,7 +25,6 @@ source "amazon-ebs" "eks_tools" {
     filters = {
       "tag:Name" = "private-*"
     }
-    most_recent = true
   }
   
   # Security group filter - only one block allowed, use multiple filters

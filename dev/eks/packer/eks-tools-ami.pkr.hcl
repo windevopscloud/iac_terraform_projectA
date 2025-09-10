@@ -37,10 +37,6 @@ source "amazon-ebs" "eks_tools" {
   # IAM instance profile - does not support filter
   iam_instance_profile = var.iam_instance_profile_name
 
-  ssh_username = var.ssh_username
-  communicator = "ssh"
-  ssh_timeout  = "5m"
-
   source_ami_filter {
     filters = {
       name                = "al2023-ami-*-x86_64"
@@ -50,6 +46,7 @@ source "amazon-ebs" "eks_tools" {
     owners      = ["137112412989"]
     most_recent = true
   }
+
   user_data = <<-EOF
     #!/bin/bash
     exec > >(tee /var/log/user-data-debug.log) 2>&1
@@ -77,6 +74,10 @@ source "amazon-ebs" "eks_tools" {
     # Keep instance alive for debugging
     sleep 300
   EOF
+
+  ssh_username = var.ssh_username
+  communicator = "ssh"
+  ssh_timeout  = "5m"
 }
 
 build {

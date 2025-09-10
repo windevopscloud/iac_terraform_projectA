@@ -23,9 +23,7 @@ source "amazon-ebs" "eks_tools" {
   # Subnet filter - only one subnet_filter block allowed
   subnet_filter {
     filters = {
-      "vpc-id"            = var.vpc_id  # You'll need to get this from elsewhere
-      "tag:Name"          = "private-*"
-      "availability-zone" = "${var.region}a"  # Be more specific
+      "tag:Name" = "private-*"
     }
     most_recent = true
   }
@@ -38,7 +36,7 @@ source "amazon-ebs" "eks_tools" {
   }
   
   # IAM instance profile - using filter  syntax
-  iam_instance_profile = {
+  iam_instance_profile_filter {
     filters = {
       "name" = "github-runner-profile-*"
     }

@@ -12,7 +12,47 @@ source "amazon-ebs" "eks_tools" {
   region        = var.region
   instance_type = var.instance_type
   ami_name      = "${var.ami_name_prefix}-${formatdate("YYYYMMDDhhmmss", timestamp())}"
-  ssh_username  = var.ssh_username
+  
+   # Private subnet configuration
+  vpc_id {
+    filters = {
+      "tag:Environment" = var.environment
+    }
+  }
+  
+  # Subnet discovery using filters (NO data block)
+  subnet_filter {
+    filters = {
+      "vpc-id"   = self.vpc_id  # Reference discovered VPC
+      "tag:Name" = "private-*"
+    }
+    most_recent = true
+  }
+  
+  # Security Group discovery using filters (NO data block)
+  security_group_filter {
+    filters = {
+      "tag:Name" = "github-runner-sg"
+    }
+  }
+  
+  security_group_filter {
+    filters = {
+      "tag:Name" = "vpc-endpoint-sg-ssm"
+    }
+  }
+  
+  # IAM Instance Profile discovery using filters (NO data block)
+  iam_instance_profile {
+    filters = {
+      "name" = "github-runner-profile-*"
+    }
+  }
+
+  # Use SSM communicator instead of SSH
+  #ssh_username  = var.ssh_username
+  communicator = "ssm"
+  ssh_timeout  = "5m"
 
   source_ami_filter {
     filters = {

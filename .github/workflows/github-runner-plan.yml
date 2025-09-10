@@ -73,20 +73,19 @@ jobs:
         uses: hashicorp/setup-packer@v2
         with:
           version: "1.14.2"
-          run: packer version
-
+          
       - name: Install Packer Amazon plugin
         if: env.PACKER_CHANGED == 'true' || env.AMI_EXISTS == 'false'
         working-directory: ${{ env.PK_DIRECTORY }}
         run: |
           mkdir -p $HOME/.packer.d/plugins
           packer plugins install github.com/hashicorp/amazon
-          packer plugins installed
-
+          
       - name: Init Packer
         if: env.PACKER_CHANGED == 'true' || env.AMI_EXISTS == 'false'
         working-directory: ${{ env.PK_DIRECTORY }}
         run: |
+          packer version
           packer init .
 
       - name: Build EKS Tools AMI

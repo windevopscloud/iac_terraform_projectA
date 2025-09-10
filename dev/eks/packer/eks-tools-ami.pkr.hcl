@@ -13,46 +13,35 @@ source "amazon-ebs" "eks_tools" {
   instance_type = var.instance_type
   ami_name      = "${var.ami_name_prefix}-${formatdate("YYYYMMDDhhmmss", timestamp())}"
   
-   # Private subnet configuration
-  vpc_id {
+  # VPC ID - use a single filter
+  vpc_filter {
     filters = {
       "tag:Environment" = var.environment
     }
   }
   
-  # Subnet discovery using filters (NO data block)
+  # Subnet filter - only one subnet_filter block allowed
   subnet_filter {
     filters = {
-      "vpc-id"   = self.vpc_id  # Reference discovered VPC
-      "tag:Name" = "private-*"
+      "vpc-id"            = var.vpc_id  # You'll need to get this from elsewhere
+      "tag:Name"          = "private-*"
+      "availability-zone" = "${var.region}a"  # Be more specific
     }
     most_recent = true
   }
   
-  # Security Group discovery using filters (NO data block)
+  # Security group filter - only one block allowed, use multiple filters
   security_group_filter {
     filters = {
       "tag:Name" = "github-runner-sg"
     }
   }
   
-  security_group_filter {
-    filters = {
-      "tag:Name" = "vpc-endpoint-sg-ssm"
-    }
-  }
-  
-  # IAM Instance Profile discovery using filters (NO data block)
-  iam_instance_profile {
-    filters = {
-      "name" = "github-runner-profile-*"
-    }
-  }
+  # IAM instance profile - use argument syntax, not block
+  iam_instance_profile = var.iam_instance_profile_name  # Pass as variable
 
-  # Use SSM communicator instead of SSH
-  #ssh_username  = var.ssh_username
   communicator = "ssm"
-  ssh_timeout  = "5m"
+  ssh_timeout  = "10m"
 
   source_ami_filter {
     filters = {
@@ -60,7 +49,7 @@ source "amazon-ebs" "eks_tools" {
       root-device-type    = "ebs"
       virtualization-type = "hvm"
     }
-    owners      = ["137112412989"] # Amazon Linux 2023 owner
+    owners      = ["137112412989"]
     most_recent = true
   }
 }

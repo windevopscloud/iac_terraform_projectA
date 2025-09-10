@@ -37,8 +37,8 @@ source "amazon-ebs" "eks_tools" {
   # IAM instance profile - does not support filter
   iam_instance_profile = var.iam_instance_profile_name
 
-  ssh_username = var.ssh_username
-  communicator = "ssh"
+  #ssh_username = var.ssh_username
+  communicator = "ssm"
   ssh_timeout  = "5m"
 
   source_ami_filter {
@@ -51,24 +51,6 @@ source "amazon-ebs" "eks_tools" {
     most_recent = true
   }
 }
-
-# Debug what's happening on the instance
-  provisioner "shell" {
-    inline = [
-      "echo '=== DEBUG START ==='",
-      "echo 'Private IP: ${self.private_ip}'",
-      "echo 'Checking SSH service...'",
-      "sudo systemctl status sshd || echo 'SSH not running'",
-      "sudo systemctl start sshd || echo 'Failed to start SSH'",
-      "sudo systemctl enable sshd",
-      "echo 'Listening ports:'",
-      "sudo netstat -tlnp || echo 'netstat not available'",
-      "echo 'Cloud-init logs:'",
-      "sudo tail -20 /var/log/cloud-init-output.log",
-      "echo '=== DEBUG END ==='",
-      "sleep 30"  # Give time to see logs
-    ]
-  }
 
 build {
   name    = "eks-tools"

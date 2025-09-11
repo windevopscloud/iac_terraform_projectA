@@ -10,7 +10,7 @@ on:
       plan_artifact:
         description: "Plan artifact name from Terraform Plan workflow"
         required: false
-        default: ""
+        default: "terraform-plan"
 
 concurrency:
   group: github-runner-apply
@@ -20,28 +20,29 @@ env:
   VAR_BACKEND: dev
   AWS_REGION: "us-east-1"
   TF_WORKSPACE: dev
-  DIRECTORY: "./dev"
+  TF_DIRECTORY: "./dev"
 
 jobs:
   terraform-apply:
     if: github.event.inputs.confirm == 'apply-dev'
-    runs-on: runner_projectA  # CHANGED: Use self-hosted runner
+    runs-on: runner_projectA
     environment: dev
     timeout-minutes: 60
     defaults:
       run:
-        working-directory: ${{ env.DIRECTORY }}
+        working-directory: ${{ env.TF_DIRECTORY }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 🔹 Download Plan Artifact if provided
       - name: Download Plan Artifact if provided
         uses: actions/download-artifact@v4
         if: github.event.inputs.plan_artifact != ''
         with:
           name: ${{ github.event.inputs.plan_artifact }}
-          path: ${{ env.DIRECTORY }}/
+          path: ${{ env.TF_DIRECTORY }}/
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -54,7 +55,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-              
+
       - name: Verify AWS permissions
         run: aws sts get-caller-identity
 
@@ -63,7 +64,10 @@ jobs:
 
       - name: Terraform Plan (if no plan provided)
         if: github.event.inputs.plan_artifact == ''
-        run: terraform plan -var-file="${VAR_BACKEND}.tfvars" -out=tfplan -no-color
+        run: |
+          terraform plan \
+            -var-file="${VAR_BACKEND}.tfvars" \
+            -out=tfplan -no-color
 
       - name: Terraform Apply
         timeout-minutes: 60
@@ -71,8 +75,10 @@ jobs:
           if [ -f "tfplan" ]; then
             terraform apply -input=false -no-color tfplan
           else
-            echo "No plan file found. Applying with auto-approve"
-            terraform apply -var-file="${VAR_BACKEND}.tfvars" -auto-approve -no-color
+            echo "No plan file found. Applying directly"
+            terraform apply \
+              -var-file="${VAR_BACKEND}.tfvars" \
+              -auto-approve -no-color
           fi
 
       - name: Capture Terraform Outputs

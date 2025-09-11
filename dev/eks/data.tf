@@ -66,3 +66,18 @@ data "aws_security_group" "vpc_endpoint_ssm" {
     values = ["vpc-endpoint-sg-ssm"]
   }
 }
+
+data "aws_ami" "eks_tools" {
+  most_recent = true
+  owners      = ["self"]
+
+  filter {
+    name   = "name"
+    values = ["eks-tools-ami-*"]
+  }
+
+  filter {
+    name   = "state"
+    values = ["available"]
+  }
+}

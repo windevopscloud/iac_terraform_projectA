@@ -96,13 +96,6 @@ jobs:
           set -euo pipefail
           echo "Building new AMI..."
           packer build . | tee build.log
-          AMI_ID=$(grep 'artifact,0,id' build.log | cut -d: -f2)
-          if [ -z "$AMI_ID" ]; then
-            echo "ERROR: Packer build failed. AMI not created."
-            exit 1
-          fi
-          echo "EKS_TOOLS_AMI_ID=$AMI_ID" >> $GITHUB_ENV
-          echo "New AMI_ID=$AMI_ID"
 
   terraform-plan:
     runs-on: runner_projectA

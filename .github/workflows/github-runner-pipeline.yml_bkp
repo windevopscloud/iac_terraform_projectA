@@ -1,14 +1,34 @@
-name: github-runner-plan
+name: github-runner-pipeline
+
+#on:
+#  workflow_run:
+#    workflows: ["github-runner-plan"]
+#    types:
+#      - completed
+
+#concurrency:
+#  group: github-runner-apply
+#  cancel-in-progress: false
 
 on:
   pull_request:
     branches: [ "dev" ]
+  push:
+    branches: [ "dev" ]
   workflow_dispatch:
     inputs:
+      confirm:
+        description: "Type 'apply-dev' to confirm apply in dev"
+        required: false
+        default: ""
       terraform_flags:
         description: "Additional Terraform flags"
         required: false
         default: ""
+      plan_artifact:
+        description: "Optional plan artifact name to use for apply"
+        required: false
+        default: "terraform-plan"
 
 env:
   VAR_BACKEND: dev
@@ -21,6 +41,7 @@ env:
 jobs:
 
   build-ami:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: runner_projectA
     environment: dev
     env:
@@ -72,8 +93,8 @@ jobs:
         if: env.PACKER_CHANGED == 'true' || env.AMI_EXISTS == 'false'
         uses: hashicorp/setup-packer@v2
         with:
-          version: "1.14.2"
-          
+          version: "latest"
+
       - name: Install Packer Amazon plugin
         if: env.PACKER_CHANGED == 'true' || env.AMI_EXISTS == 'false'
         working-directory: ${{ env.PK_DIRECTORY }}
@@ -98,13 +119,14 @@ jobs:
           packer build . | tee build.log
 
   terraform-plan:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: runner_projectA
     environment: dev
+    needs: [build-ami]
     defaults:
       run:
         working-directory: ${{ env.TF_DIRECTORY }}
         shell: bash
-    needs: [build-ami]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -137,9 +159,7 @@ jobs:
         run: terraform validate -no-color
 
       - name: Terraform Format Check
-        run: |
-          terraform fmt -check -recursive -diff
-          echo "Format check completed"
+        run: terraform fmt -check -recursive -diff
 
       - name: Terraform Plan
         run: |
@@ -149,3 +169,66 @@ jobs:
             -no-color \
             -out=tfplan \
             ${{ github.event.inputs.terraform_flags }}
+
+      - name: Upload Terraform Plan Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan
+          path: ${{ env.TF_DIRECTORY }}/tfplan
+          if-no-files-found: error
+
+  terraform-apply:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' && github.event.inputs.confirm == 'apply-dev'
+    runs-on: runner_projectA
+    environment: dev
+    timeout-minutes: 60
+    needs: [terraform-plan]
+    defaults:
+      run:
+        working-directory: ${{ env.TF_DIRECTORY }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download Plan Artifact if provided
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ github.event.inputs.plan_artifact || 'terraform-plan' }}
+          path: ${{ env.TF_DIRECTORY }}/
+        continue-on-error: true
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.12.0"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Verify AWS permissions
+        run: aws sts get-caller-identity
+
+      - name: Terraform Init
+        run: terraform init -reconfigure -backend-config=${VAR_BACKEND}-backend.hcl
+
+      - name: Terraform Plan (if no plan file present)
+        if: ${{ !hashFiles(format('{0}/tfplan', env.TF_DIRECTORY)) }}
+        run: |
+          terraform plan \
+            -var-file="${VAR_BACKEND}.tfvars" \
+            -out=tfplan -no-color
+
+      - name: Terraform Apply
+        run: |
+          if [ -f "tfplan" ]; then
+            terraform apply -input=false -no-color tfplan
+          else
+            terraform apply \
+              -var-file="${VAR_BACKEND}.tfvars" \
+              -auto-approve -no-color
+          fi

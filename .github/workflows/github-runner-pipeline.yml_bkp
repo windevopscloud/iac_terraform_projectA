@@ -1,5 +1,15 @@
 name: github-runner-pipeline
 
+#on:
+#  workflow_run:
+#    workflows: ["github-runner-plan"]
+#    types:
+#      - completed
+
+#concurrency:
+#  group: github-runner-apply
+#  cancel-in-progress: false
+
 on:
   pull_request:
     branches: [ "dev" ]
@@ -168,7 +178,7 @@ jobs:
           if-no-files-found: error
 
   terraform-apply:
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' && github.event.inputs.confirm == 'apply-dev'
     runs-on: runner_projectA
     environment: dev
     timeout-minutes: 60

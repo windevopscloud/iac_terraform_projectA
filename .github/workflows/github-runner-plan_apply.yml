@@ -1,25 +1,28 @@
-name: github-runner-plan
+name: github-runner-apply
 
 on:
-  pull_request:
-    branches: [ "dev" ]
   workflow_dispatch:
     inputs:
-      terraform_flags:
-        description: "Additional Terraform flags"
+      confirm:
+        description: "Type 'apply-dev' to confirm apply in dev"
+        required: true
+        default: "apply-dev"
+      plan_artifact:
+        description: "Plan artifact name from Terraform Plan workflow"
         required: false
-        default: ""
-  
+        default: "terraform-plan"
+
+concurrency:
+  group: github-runner-apply
+  cancel-in-progress: false
+
 env:
   VAR_BACKEND: dev
   AWS_REGION: "us-east-1"
   TF_WORKSPACE: dev
   TF_DIRECTORY: "./dev"
-  PK_DIRECTORY: "./dev/eks/packer"
-  AMI_NAME_PREFIX: "eks-tools"
 
 jobs:
-
   build-ami:
     runs-on: runner_projectA
     environment: dev
@@ -112,7 +115,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "1.6.0"
+          terraform_version: "1.12.0"
           terraform_wrapper: false
 
       - name: Configure AWS credentials
@@ -156,3 +159,60 @@ jobs:
           name: terraform-plan
           path: ${{ env.TF_DIRECTORY }}/tfplan
           if-no-files-found: error
+          
+  terraform-apply:
+    if: github.event.inputs.confirm == 'apply-dev'
+    runs-on: runner_projectA
+    environment: dev
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: ${{ env.TF_DIRECTORY }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 🔹 Download Plan Artifact if provided
+      - name: Download Plan Artifact if provided
+        uses: actions/download-artifact@v4
+        if: github.event.inputs.plan_artifact != ''
+        with:
+          name: ${{ github.event.inputs.plan_artifact }}
+          path: ${{ env.TF_DIRECTORY }}/
+        continue-on-error: true
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.12.0"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Verify AWS permissions
+        run: aws sts get-caller-identity
+
+      - name: Terraform Init
+        run: terraform init -reconfigure -backend-config=${VAR_BACKEND}-backend.hcl
+
+      - name: Terraform Plan and Apply (if no plan provided)
+        if: github.event.inputs.plan_artifact == ''
+        run: |
+          terraform plan \
+            -var-file="${VAR_BACKEND}.tfvars" \
+            -out=tfplan -no-color
+          terraform apply \
+              -var-file="${VAR_BACKEND}.tfvars" \
+              -auto-approve -no-color
+
+      - name: Terraform Apply (using provided plan)
+        timeout-minutes: 60
+        run: |
+          if [ -f "${TF_DIRECTORY}/tfplan" ]; then
+            terraform apply -input=false -no-color "${TF_DIRECTORY}/tfplan"
+          fi

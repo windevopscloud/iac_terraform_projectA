@@ -159,12 +159,12 @@ jobs:
           name: terraform-plan
           path: ${{ env.TF_DIRECTORY }}/tfplan
           if-no-files-found: error
-          
+
   terraform-apply:
-    if: github.event.inputs.confirm == 'apply-dev'
     runs-on: runner_projectA
     environment: dev
     timeout-minutes: 60
+    needs: [terraform-plan]
     defaults:
       run:
         working-directory: ${{ env.TF_DIRECTORY }}

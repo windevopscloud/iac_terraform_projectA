@@ -217,6 +217,6 @@ jobs:
       - name: Terraform Apply (using provided plan)
         timeout-minutes: 60
         run: |
-          if [ -f "${TF_DIRECTORY}/terraform-plan/tfplan" ]; then
-            terraform apply -input=false -no-color "${TF_DIRECTORY}/terraform-plan/tfplan"
+          if [ -f "tfplan" ]; then
+            terraform apply -input=false -no-color tfplan
           fi

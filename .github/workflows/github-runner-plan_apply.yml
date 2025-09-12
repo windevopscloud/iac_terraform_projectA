@@ -1,4 +1,4 @@
-name: github-runner-apply
+name: github-runner-plan_apply
 
 on:
   workflow_dispatch:
@@ -21,8 +21,11 @@ env:
   AWS_REGION: "us-east-1"
   TF_WORKSPACE: dev
   TF_DIRECTORY: "./dev"
+  PK_DIRECTORY: "./dev/eks/packer"
+  AMI_NAME_PREFIX: "eks-tools"
 
 jobs:
+
   build-ami:
     runs-on: runner_projectA
     environment: dev
@@ -159,12 +162,13 @@ jobs:
           name: terraform-plan
           path: ${{ env.TF_DIRECTORY }}/tfplan
           if-no-files-found: error
-          
+
   terraform-apply:
     if: github.event.inputs.confirm == 'apply-dev'
     runs-on: runner_projectA
     environment: dev
     timeout-minutes: 60
+    needs: [terraform-plan]
     defaults:
       run:
         working-directory: ${{ env.TF_DIRECTORY }}

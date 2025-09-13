@@ -69,7 +69,7 @@ build {
 
       # Expand root partition and filesystem to use full 20GB
       "sudo growpart /dev/xvda 1 || true",
-      "sudo xfs_growfs / || sudo resize2fs / || true",
+      "sudo xfs_growfs / || true",
       "sudo df -h",
 
       # Install base tools
@@ -82,20 +82,20 @@ build {
 
       # kubectl
       "curl -Lo /tmp/kubectl https://dl.k8s.io/release/v${var.eks_version}/bin/linux/amd64/kubectl",
-      "sudo mv /tmp/kubectl /usr/bin/kubectl",
-      "sudo chmod +x /usr/bin/kubectl",
+      "sudo mv /tmp/kubectl /usr/local/bin/kubectl",
+      "sudo chmod +x /usr/local/bin/kubectl",
 
       # eksctl
       "curl -Lo /tmp/eksctl.tar.gz https://github.com/eksctl-io/eksctl/releases/${var.eksctl_version}/download/eksctl_Linux_amd64.tar.gz",
       "tar -xzf /tmp/eksctl.tar.gz -C /tmp",
-      "sudo mv /tmp/eksctl /usr/bin/eksctl",
-      "sudo chmod +x /usr/bin/eksctl",
+      "sudo mv /tmp/eksctl /usr/local/bin/eksctl",
+      "sudo chmod +x /usr/local/bin/eksctl",
 
       # helm
       "curl -Lo /tmp/helm.tar.gz https://get.helm.sh/helm-v${var.helm_version}-linux-amd64.tar.gz",
       "tar -xzf /tmp/helm.tar.gz -C /tmp",
-      "sudo mv /tmp/linux-amd64/helm /usr/bin/helm",
-      "sudo chmod +x /usr/bin/helm"
+      "sudo mv /tmp/linux-amd64/helm /usr/local/bin/helm",
+      "sudo chmod +x /usr/local/bin/helm"
     ]
   }
 

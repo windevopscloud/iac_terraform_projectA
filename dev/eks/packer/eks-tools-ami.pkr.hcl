@@ -68,18 +68,18 @@ build {
       "set -eux",
 
       # Detect root device & partition
-      ROOT_DEVICE=$(lsblk -no PKNAME / | head -n1)
-      PARTITION=$(lsblk -no NAME / | tail -n1)
-      echo "Root device: $ROOT_DEVICE, Partition: $PARTITION"
+      "ROOT_DEVICE=$(lsblk -no PKNAME / | head -n1)"
+      "PARTITION=$(lsblk -no NAME / | tail -n1)"
+      "echo "Root device: $ROOT_DEVICE, Partition: $PARTITION",
 
       # Grow the partition (ignore errors)
-      sudo growpart /dev/$ROOT_DEVICE 1 || true
+      "sudo growpart /dev/$ROOT_DEVICE 1 || true",
 
       # Grow filesystem
-      sudo xfs_growfs / || true
+      "sudo xfs_growfs / || true",
 
       # Verify
-      df -h /
+      "df -h /",
 
       # Install base tools
       "sudo dnf install -y unzip tar gzip git jq amazon-ssm-agent telnet bind-utils nmap-ncat docker",

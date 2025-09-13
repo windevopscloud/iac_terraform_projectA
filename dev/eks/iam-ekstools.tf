@@ -55,13 +55,13 @@ resource "kubernetes_cluster_role" "eks_tools" {
 
   rule {
     api_groups = [""]
-    resources  = ["pods", "configmaps", "services"]
+    resources  = ["pods", "services", "nodes", "namespaces", "configmaps", "events", "endpoints"]
     verbs      = ["get", "list", "watch", "create", "update", "patch", "delete"]
   }
 
   rule {
     api_groups = ["apps"]
-    resources  = ["deployments", "replicasets", "statefulsets"]
+    resources  = ["deployments", "replicasets", "statefulsets", "daemonsets"]
     verbs      = ["get", "list", "watch", "update", "patch"]
   }
 

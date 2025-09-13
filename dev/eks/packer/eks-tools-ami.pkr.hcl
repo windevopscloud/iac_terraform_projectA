@@ -64,52 +64,48 @@ build {
   sources = ["source.amazon-ebs.eks_tools"]
 
   provisioner "shell" {
-    inline = [
-      "set -eux",
+    inline = <<-EOF
+      set -eux
 
       # Detect root device & partition
-      "ROOT_DEVICE=$(lsblk -no PKNAME / | head -n1)"
-      "PARTITION=$(lsblk -no NAME / | tail -n1)"
-      "echo "Root device: $ROOT_DEVICE, Partition: $PARTITION",
+      ROOT_DEVICE=$(lsblk -no PKNAME / | head -n1)
+      PARTITION=$(lsblk -no NAME / | tail -n1)
+      echo "Root device: $ROOT_DEVICE, Partition: $PARTITION"
 
       # Grow the partition (ignore errors)
-      "sudo growpart /dev/$ROOT_DEVICE 1 || true",
-
-      # Grow filesystem
-      "sudo xfs_growfs / || true",
-
-      # Verify
-      "df -h /",
+      sudo growpart /dev/$ROOT_DEVICE 1 || true
+      sudo xfs_growfs / || true
+      df -h /
 
       # Install base tools
-      "sudo dnf install -y unzip tar gzip git jq amazon-ssm-agent telnet bind-utils nmap-ncat docker",
+      sudo dnf install -y unzip tar gzip git jq amazon-ssm-agent telnet bind-utils nmap-ncat docker
 
-      "sudo systemctl enable amazon-ssm-agent",
-      "sudo systemctl start amazon-ssm-agent",
-      "sudo systemctl enable docker",
-      "sudo systemctl start docker",
+      sudo systemctl enable amazon-ssm-agent
+      sudo systemctl start amazon-ssm-agent
+      sudo systemctl enable docker
+      sudo systemctl start docker
 
       # kubectl
-      "curl -Lo /tmp/kubectl https://dl.k8s.io/release/v${var.eks_version}/bin/linux/amd64/kubectl",
-      "sudo mv /tmp/kubectl /usr/local/bin/kubectl",
-      "sudo chmod +x /usr/local/bin/kubectl",
+      curl -Lo /tmp/kubectl https://dl.k8s.io/release/v${var.eks_version}/bin/linux/amd64/kubectl
+      sudo mv /tmp/kubectl /usr/local/bin/kubectl
+      sudo chmod +x /usr/local/bin/kubectl
 
       # eksctl
-      "curl -Lo /tmp/eksctl.tar.gz https://github.com/eksctl-io/eksctl/releases/${var.eksctl_version}/download/eksctl_Linux_amd64.tar.gz",
-      "mkdir -p /tmp/eksctl",
-      "tar -xzf /tmp/eksctl.tar.gz -C /tmp/eksctl",
-      "sudo mv /tmp/eksctl/eksctl /usr/local/bin/eksctl",
-      "sudo chmod +x /usr/local/bin/eksctl",
-      "rm -rf /tmp/eksctl /tmp/eksctl.tar.gz",
+      curl -Lo /tmp/eksctl.tar.gz https://github.com/eksctl-io/eksctl/releases/${var.eksctl_version}/download/eksctl_Linux_amd64.tar.gz
+      mkdir -p /tmp/eksctl
+      tar -xzf /tmp/eksctl.tar.gz -C /tmp/eksctl
+      sudo mv /tmp/eksctl/eksctl /usr/local/bin/eksctl
+      sudo chmod +x /usr/local/bin/eksctl
+      rm -rf /tmp/eksctl /tmp/eksctl.tar.gz
 
       # helm
-      "curl -Lo /tmp/helm.tar.gz https://get.helm.sh/helm-v${var.helm_version}-linux-amd64.tar.gz",
-      "mkdir -p /tmp/helm",
-      "tar -xzf /tmp/helm.tar.gz -C /tmp/helm --strip-components=1 linux-amd64",
-      "sudo mv /tmp/helm/helm /usr/local/bin/helm",
-      "sudo chmod +x /usr/local/bin/helm",
-      "rm -rf /tmp/helm /tmp/helm.tar.gz"
-    ]
+      curl -Lo /tmp/helm.tar.gz https://get.helm.sh/helm-v${var.helm_version}-linux-amd64.tar.gz
+      mkdir -p /tmp/helm
+      tar -xzf /tmp/helm.tar.gz -C /tmp/helm --strip-components=1 linux-amd64
+      sudo mv /tmp/helm/helm /usr/local/bin/helm
+      sudo chmod +x /usr/local/bin/helm
+      rm -rf /tmp/helm /tmp/helm.tar.gz
+    EOF
   }
 
   post-processor "manifest" {

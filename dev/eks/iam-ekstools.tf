@@ -78,8 +78,9 @@ resource "kubernetes_cluster_role_binding" "eks_tools_binding" {
   }
 
   subject {
-    kind      = "User"
-    name      = aws_iam_role.eks_tools.arn
+    kind = "User"
+    name = "eks-tools-user"
+    #name      = aws_iam_role.eks_tools.arn
     api_group = "rbac.authorization.k8s.io"
   }
 

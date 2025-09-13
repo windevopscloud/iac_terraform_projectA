@@ -69,7 +69,7 @@ build {
       "sudo systemctl start docker",
 
       # kubectl
-      "sudo curl -Lo /usr/local/bin/kubectl https://dl.k8s.io/release/${var.eks_version}/bin/linux/amd64/kubectl", 
+      "sudo curl -Lo /usr/local/bin/kubectl https://dl.k8s.io/release/v${var.eks_version}/bin/linux/amd64/kubectl", 
       #"sudo curl -Lo /usr/local/bin/kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/${var.eks_version}/${var.kubectl_date}/bin/linux/amd64/kubectl",
       "sudo chmod +x /usr/local/bin/kubectl",
 

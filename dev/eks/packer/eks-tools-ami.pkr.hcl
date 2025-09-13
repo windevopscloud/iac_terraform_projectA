@@ -47,12 +47,21 @@ source "amazon-ebs" "eks_tools" {
     most_recent = true
   }
 
-  ami_block_device_mappings {
-    device_name           = "/dev/nvme0n1"
-    volume_size           = 20   # increase from default 8GB
+  # Build instance volume - use /dev/xvda
+  launch_block_device_mappings {
+    device_name           = "/dev/xvda"
+    volume_size           = 20   # increase from default disk space
     volume_type           = "gp3"
     delete_on_termination = true
   }
+
+  # Final AMI volume - use /dev/xvda
+  #ami_block_device_mappings {
+  #  device_name           = "/dev/xvda"
+  #  volume_size           = 20
+  #  volume_type           = "gp3"
+  #  delete_on_termination = true
+  #}
   
   ssh_username = var.ssh_username
   communicator = "ssh"
@@ -67,21 +76,7 @@ build {
   inline = [
     "set -eux",
 
-    # Detect root NVMe device and partition
-    "ROOT_DEVICE=$(findmnt / -o SOURCE -n | sed 's/p[0-9]*$//')",
-    "PARTITION=$(lsblk -no NAME $ROOT_DEVICE | tail -n1)",
-    "echo Root device: $ROOT_DEVICE, Partition: $PARTITION",
-
-    # Grow partition (force it to the full volume)
-    "sudo growpart $ROOT_DEVICE 1 || true",
-    "sudo xfs_growfs /",
-    
-    # Grow the root partition for AL2023
-    #"ROOT_DEVICE=$(findmnt / -o SOURCE -n | sed 's/p[0-9]*$//')",
-    #"echo Root device: $ROOT_DEVICE",
-    #"sudo growpart $ROOT_DEVICE 1 || true",
-    #"sudo xfs_growfs / || true",
-    #"df -h /",
+    "df -h /",
 
     # Install base tools
     "sudo dnf install -y unzip tar gzip git jq amazon-ssm-agent telnet bind-utils nmap-ncat docker",

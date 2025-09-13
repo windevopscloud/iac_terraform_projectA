@@ -43,10 +43,10 @@ jobs:
       - name: Detect changes in packer folder
         id: packer_check
         run: |
-          git fetch origin ${{ github.base_ref }}:${{ github.base_ref }}
-          git fetch origin ${{ github.head_ref }}:${{ github.head_ref }}
-          echo "Comparing ${{ github.base_ref }}...${{ github.head_ref }}"
-          if git diff --name-only ${{ github.base_ref }}...${{ github.head_ref }} | grep -q '^dev/eks/packer/'; then
+          BASE_SHA=${{ github.event.pull_request.base.sha }}
+          HEAD_SHA=${{ github.event.pull_request.head.sha }}
+          echo "Comparing $BASE_SHA...$HEAD_SHA"
+          if git diff --name-only $BASE_SHA $HEAD_SHA | grep -q '^dev/eks/packer/'; then
             echo "PACKER_CHANGED"  
             echo "PACKER_CHANGED=true" >> $GITHUB_ENV
           else

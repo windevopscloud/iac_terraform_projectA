@@ -85,4 +85,3 @@ build {
     output = "manifest.json"
   }
 }
-

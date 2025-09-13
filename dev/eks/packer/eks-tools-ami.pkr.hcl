@@ -48,7 +48,7 @@ source "amazon-ebs" "eks_tools" {
   }
 
   ami_block_device_mappings {
-    device_name           = "/dev/xvda"
+    device_name           = "/dev/nvme0n1"
     volume_size           = 20   # increase from default 8GB
     volume_type           = "gp3"
     delete_on_termination = true
@@ -67,10 +67,19 @@ build {
     inline = [
       "set -eux",
 
-      # Expand root partition and filesystem to use full 20GB
-      "sudo growpart /dev/xvda 1 || true",
-      "sudo xfs_growfs / || true",
-      "sudo df -h",
+      # Detect root device & partition
+      ROOT_DEVICE=$(lsblk -no PKNAME / | head -n1)
+      PARTITION=$(lsblk -no NAME / | tail -n1)
+      echo "Root device: $ROOT_DEVICE, Partition: $PARTITION"
+
+      # Grow the partition (ignore errors)
+      sudo growpart /dev/$ROOT_DEVICE 1 || true
+
+      # Grow filesystem
+      sudo xfs_growfs / || true
+
+      # Verify
+      df -h /
 
       # Install base tools
       "sudo dnf install -y unzip tar gzip git jq amazon-ssm-agent telnet bind-utils nmap-ncat docker",
@@ -87,15 +96,19 @@ build {
 
       # eksctl
       "curl -Lo /tmp/eksctl.tar.gz https://github.com/eksctl-io/eksctl/releases/${var.eksctl_version}/download/eksctl_Linux_amd64.tar.gz",
-      "tar -xzf /tmp/eksctl.tar.gz -C /tmp",
-      "sudo mv /tmp/eksctl /usr/local/bin/eksctl",
+      "mkdir -p /tmp/eksctl",
+      "tar -xzf /tmp/eksctl.tar.gz -C /tmp/eksctl",
+      "sudo mv /tmp/eksctl/eksctl /usr/local/bin/eksctl",
       "sudo chmod +x /usr/local/bin/eksctl",
+      "rm -rf /tmp/eksctl /tmp/eksctl.tar.gz",
 
       # helm
       "curl -Lo /tmp/helm.tar.gz https://get.helm.sh/helm-v${var.helm_version}-linux-amd64.tar.gz",
-      "tar -xzf /tmp/helm.tar.gz -C /tmp",
-      "sudo mv /tmp/linux-amd64/helm /usr/local/bin/helm",
-      "sudo chmod +x /usr/local/bin/helm"
+      "mkdir -p /tmp/helm",
+      "tar -xzf /tmp/helm.tar.gz -C /tmp/helm --strip-components=1 linux-amd64",
+      "sudo mv /tmp/helm/helm /usr/local/bin/helm",
+      "sudo chmod +x /usr/local/bin/helm",
+      "rm -rf /tmp/helm /tmp/helm.tar.gz"
     ]
   }
 

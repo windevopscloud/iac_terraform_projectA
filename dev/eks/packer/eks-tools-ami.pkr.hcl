@@ -46,6 +46,13 @@ source "amazon-ebs" "eks_tools" {
     owners      = ["137112412989"]
     most_recent = true
   }
+
+  ami_block_device_mappings {
+    device_name           = "/dev/xvda"
+    volume_size           = 20   # increase from default 8GB
+    volume_type           = "gp3"
+    delete_on_termination = true
+  }
   
   ssh_username = var.ssh_username
   communicator = "ssh"

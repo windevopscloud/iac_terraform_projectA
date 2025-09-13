@@ -69,15 +69,21 @@ build {
       "sudo systemctl start docker",
 
       # kubectl
-      "sudo curl -Lo /usr/local/bin/kubectl https://dl.k8s.io/release/v${var.eks_version}/bin/linux/amd64/kubectl", 
-      #"sudo curl -Lo /usr/local/bin/kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/${var.eks_version}/${var.kubectl_date}/bin/linux/amd64/kubectl",
+      "curl -Lo /tmp/kubectl https://dl.k8s.io/release/v${var.eks_version}/bin/linux/amd64/kubectl",
+      "sudo mv /tmp/kubectl /usr/local/bin/kubectl",
       "sudo chmod +x /usr/local/bin/kubectl",
 
       # eksctl
-      "sudo curl -sL https://github.com/eksctl-io/eksctl/releases/${var.eksctl_version}/download/eksctl_Linux_amd64.tar.gz | sudo tar xz -C /usr/local/bin",
+      "curl -Lo /tmp/eksctl.tar.gz https://github.com/eksctl-io/eksctl/releases/${var.eksctl_version}/download/eksctl_Linux_amd64.tar.gz",
+      "tar -xzf /tmp/eksctl.tar.gz -C /tmp",
+      "sudo mv /tmp/eksctl /usr/local/bin/eksctl",
+      "sudo chmod +x /usr/local/bin/eksctl",
 
       # helm
-      "sudo curl -fsSL https://get.helm.sh/helm-v${var.helm_version}-linux-amd64.tar.gz | sudo tar xz -C /usr/local/bin --strip-components=1 linux-amd64/helm"
+      "curl -Lo /tmp/helm.tar.gz https://get.helm.sh/helm-v${var.helm_version}-linux-amd64.tar.gz",
+      "tar -xzf /tmp/helm.tar.gz -C /tmp",
+      "sudo mv /tmp/linux-amd64/helm /usr/local/bin/helm",
+      "sudo chmod +x /usr/local/bin/helm"
     ]
   }
 

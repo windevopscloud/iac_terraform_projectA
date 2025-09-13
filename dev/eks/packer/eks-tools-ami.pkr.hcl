@@ -67,6 +67,11 @@ build {
     inline = [
       "set -eux",
 
+      # Expand root partition and filesystem to use full 20GB
+      "sudo growpart /dev/xvda 1 || true",
+      "sudo xfs_growfs / || sudo resize2fs / || true",
+      "sudo df -h",
+
       # Install base tools
       "sudo dnf install -y unzip tar gzip git jq amazon-ssm-agent telnet bind-utils nmap-ncat docker",
 

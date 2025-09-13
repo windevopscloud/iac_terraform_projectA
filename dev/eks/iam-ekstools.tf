@@ -93,7 +93,7 @@ resource "kubernetes_cluster_role_binding" "eks_tools_binding" {
 # AWS Auth ConfigMap entry
 resource "null_resource" "update_aws_auth" {
   triggers = {
-    role_arn = aws_iam_role.eks_tools.arn
+    role_arn   = aws_iam_role.eks_tools.arn
     always_run = timestamp() # Ensure it runs every time
   }
 

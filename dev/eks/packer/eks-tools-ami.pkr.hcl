@@ -66,13 +66,11 @@ build {
   provisioner "shell" {
   inline = [
     "set -eux",
-    # Detect root device & partition
-    "ROOT_DEVICE=$(lsblk -no PKNAME / | head -n1)",
-    "PARTITION=$(lsblk -no NAME / | tail -n1)",
-    "echo Root device: $ROOT_DEVICE, Partition: $PARTITION",
-
-    # Grow partition
-    "sudo growpart /dev/$ROOT_DEVICE 1 || true",
+    
+    # Grow the root partition for AL2023
+    "ROOT_DEVICE=$(findmnt / -o SOURCE -n | sed 's/p[0-9]*$//')",
+    "echo Root device: $ROOT_DEVICE",
+    "sudo growpart $ROOT_DEVICE 1 || true",
     "sudo xfs_growfs / || true",
     "df -h /",
 

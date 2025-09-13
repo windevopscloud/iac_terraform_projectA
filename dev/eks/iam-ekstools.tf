@@ -70,6 +70,41 @@ resource "kubernetes_cluster_role" "eks_tools" {
     resources  = ["jobs", "cronjobs"]
     verbs      = ["get", "list", "watch", "create", "update", "patch", "delete"]
   }
+
+  # For Ingress resources (inbound traffic)
+  rule {
+    api_groups = ["extensions", "networking.k8s.io"]
+    resources  = ["ingresses"]
+    verbs      = ["get", "list", "watch"]
+  }
+
+  # For Network Policies (controls both ingress AND egress)
+  rule {
+    api_groups = ["networking.k8s.io"]
+    resources  = ["networkpolicies"]
+    verbs      = ["get", "list", "watch"]
+  }
+
+  # For Calico Network Policies (if using Calico CNI)
+  #rule {
+  #  api_groups = ["crd.projectcalico.org"]
+  #  resources  = ["networkpolicies", "globalnetworkpolicies"]
+  #  verbs      = ["get", "list", "watch"]
+  #}
+
+  # For Cilium Network Policies (if using Cilium CNI)  
+  #rule {
+  #  api_groups = ["cilium.io"]
+  #  resources  = ["ciliumnetworkpolicies", "ciliumclusterwidenetworkpolicies"]
+  #  verbs      = ["get", "list", "watch"]
+  #}
+
+  # For Istio Egress Gateways (if using Istio)
+  #rule {
+  #  api_groups = ["networking.istio.io"]
+  #  resources  = ["gateways", "virtualservices", "destinationrules"]
+  #  verbs      = ["get", "list", "watch"]
+  #}
 }
 
 resource "kubernetes_cluster_role_binding" "eks_tools_binding" {

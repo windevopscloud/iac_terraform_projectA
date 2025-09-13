@@ -40,3 +40,75 @@ resource "aws_eks_node_group" "this" {
     aws_iam_role_policy_attachment.ssm_managed_instance
   ]
 }
+
+# Get the aws-auth configmap data
+data "kubernetes_config_map" "aws_auth" {
+  metadata {
+    name      = "aws-auth"
+    namespace = "kube-system"
+  }
+
+  depends_on = [aws_eks_cluster.this]
+}
+
+# Add EKS tools IAM role to aws-auth
+resource "kubernetes_config_map_v1_data" "eks_tools_auth" {
+  metadata {
+    name      = "aws-auth"
+    namespace = "kube-system"
+  }
+
+  data = {
+    "mapRoles" = yamlencode(concat(
+      # Get existing mappings from the current aws-auth
+      try(yamldecode(data.kubernetes_config_map.aws_auth.data.mapRoles), []),
+      # Add our EKS tools mapping
+      [{
+        rolearn  = aws_iam_role.eks_tools.arn
+        username = "eks-tools-user"
+        groups   = ["eks-tools-group"]
+      }]
+    ))
+  }
+
+  lifecycle {
+    ignore_changes = [data]
+  }
+
+  depends_on = [
+    aws_eks_cluster.this,
+    data.kubernetes_config_map.aws_auth,
+    aws_iam_role.eks_tools
+  ]
+}
+
+# Add EKS tools IAM role to aws-auth
+resource "kubernetes_config_map_v1_data" "eks_tools_auth" {
+  metadata {
+    name      = "aws-auth"
+    namespace = "kube-system"
+  }
+
+  data = {
+    "mapRoles" = yamlencode(concat(
+      # Get existing mappings
+      try(yamldecode(data.kubernetes_config_map.aws_auth.data.mapRoles), []),
+      # Add our EKS tools mapping
+      [{
+        rolearn  = aws_iam_role.eks_tools.arn
+        username = "eks-tools-user"
+        groups   = ["eks-tools-group"]
+      }]
+    ))
+  }
+
+  lifecycle {
+    ignore_changes = [data]
+  }
+
+  depends_on = [
+    aws_eks_cluster.this,
+    data.kubernetes_config_map.aws_auth,
+    aws_iam_role.eks_tools
+  ]
+}

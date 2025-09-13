@@ -45,6 +45,8 @@ jobs:
         run: |
           BASE_SHA=${{ github.event.pull_request.base.sha }}
           HEAD_SHA=${{ github.event.pull_request.head.sha }}
+          git fetch origin $BASE_SHA
+          git fetch origin $HEAD_SHA
           echo "Comparing $BASE_SHA...$HEAD_SHA"
           if git diff --name-only $BASE_SHA $HEAD_SHA | grep -q '^dev/eks/packer/'; then
             echo "PACKER_CHANGED"  

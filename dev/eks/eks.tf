@@ -61,6 +61,8 @@ resource "kubernetes_config_map_v1_data" "eks_tools_auth" {
     ))
   }
 
+  force = true
+
   lifecycle {
     ignore_changes = [data]
   }

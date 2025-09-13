@@ -45,11 +45,19 @@ jobs:
         run: |
           BASE_SHA=${{ github.event.pull_request.base.sha }}
           HEAD_SHA=${{ github.event.pull_request.head.sha }}
-          git fetch origin $BASE_SHA
-          git fetch origin $HEAD_SHA
-          echo "Comparing $BASE_SHA...$HEAD_SHA"
-          if git diff --name-only $BASE_SHA $HEAD_SHA | grep -q '^dev/eks/packer/'; then
-            echo "PACKER_CHANGED"  
+
+          echo "Fetching PR base and head commits..."
+          git fetch origin $BASE_SHA || true
+          git fetch origin $HEAD_SHA || true
+
+          echo "Checking diff between $BASE_SHA and $HEAD_SHA..."
+          CHANGED_FILES=$(git diff --name-only $BASE_SHA $HEAD_SHA)
+
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          if echo "$CHANGED_FILES" | grep -E '^dev/eks/packer/' >/dev/null; then
+            echo "PACKER_CHANGED"
             echo "PACKER_CHANGED=true" >> $GITHUB_ENV
           else
             echo "PACKER_NOT_CHANGED"

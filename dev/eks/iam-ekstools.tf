@@ -32,7 +32,8 @@ resource "aws_iam_role_policy" "eks_tools_cluster_access" {
           "eks:DescribeCluster",
           "eks:ListClusters",
           "eks:ListNodegroups",
-          "eks:DescribeNodegroup"
+          "eks:DescribeNodegroup",
+          "eks:AccessKubernetesApi"
         ]
         Resource = "*"
       }

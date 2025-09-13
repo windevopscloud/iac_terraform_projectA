@@ -46,6 +46,22 @@ source "amazon-ebs" "eks_tools" {
     owners      = ["137112412989"]
     most_recent = true
   }
+
+  # Build instance volume - use /dev/xvda
+  launch_block_device_mappings {
+    device_name           = "/dev/xvda"
+    volume_size           = 20   # increase from default disk space
+    volume_type           = "gp3"
+    delete_on_termination = true
+  }
+
+  # Final AMI volume - use /dev/xvda
+  #ami_block_device_mappings {
+  #  device_name           = "/dev/xvda"
+  #  volume_size           = 20
+  #  volume_type           = "gp3"
+  #  delete_on_termination = true
+  #}
   
   ssh_username = var.ssh_username
   communicator = "ssh"
@@ -57,27 +73,38 @@ build {
   sources = ["source.amazon-ebs.eks_tools"]
 
   provisioner "shell" {
-    inline = [
-      "set -eux",
+  inline = [
+    "set -eux",
 
-      # Install base tools
-      "sudo dnf install -y unzip tar gzip git jq amazon-ssm-agent telnet bind-utils nmap-ncat docker",
+    "df -h /",
 
-      "sudo systemctl enable amazon-ssm-agent",
-      "sudo systemctl start amazon-ssm-agent",
-      "sudo systemctl enable docker",
-      "sudo systemctl start docker",
+    # Install base tools
+    "sudo dnf install -y unzip tar gzip git jq amazon-ssm-agent telnet bind-utils nmap-ncat docker",
+    "sudo systemctl enable amazon-ssm-agent",
+    "sudo systemctl start amazon-ssm-agent",
+    "sudo systemctl enable docker",
+    "sudo systemctl start docker",
 
-      # kubectl
-      "sudo curl -Lo /usr/local/bin/kubectl https://dl.k8s.io/release/${var.eks_version}/bin/linux/amd64/kubectl", 
-      #"sudo curl -Lo /usr/local/bin/kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/${var.eks_version}/${var.kubectl_date}/bin/linux/amd64/kubectl",
-      "sudo chmod +x /usr/local/bin/kubectl",
+    # kubectl
+    "curl -Lo /tmp/kubectl https://dl.k8s.io/release/v${var.eks_version}/bin/linux/amd64/kubectl",
+    "sudo mv /tmp/kubectl /usr/local/bin/kubectl",
+    "sudo chmod +x /usr/local/bin/kubectl",
 
-      # eksctl
-      "sudo curl -sL https://github.com/eksctl-io/eksctl/releases/${var.eksctl_version}/download/eksctl_Linux_amd64.tar.gz | sudo tar xz -C /usr/local/bin",
+    # eksctl
+    "curl -Lo /tmp/eksctl.tar.gz https://github.com/eksctl-io/eksctl/releases/${var.eksctl_version}/download/eksctl_Linux_amd64.tar.gz",
+    "mkdir -p /tmp/eksctl",
+    "tar -xzf /tmp/eksctl.tar.gz -C /tmp/eksctl",
+    "sudo mv /tmp/eksctl/eksctl /usr/local/bin/eksctl",
+    "sudo chmod +x /usr/local/bin/eksctl",
+    "rm -rf /tmp/eksctl /tmp/eksctl.tar.gz",
 
-      # helm
-      "sudo curl -fsSL https://get.helm.sh/helm-v${var.helm_version}-linux-amd64.tar.gz | sudo tar xz -C /usr/local/bin --strip-components=1 linux-amd64/helm"
+    # helm
+    "curl -Lo /tmp/helm.tar.gz https://get.helm.sh/helm-v${var.helm_version}-linux-amd64.tar.gz",
+    "mkdir -p /tmp/helm",
+    "tar -xzf /tmp/helm.tar.gz -C /tmp/helm --strip-components=1 linux-amd64",
+    "sudo mv /tmp/helm/helm /usr/local/bin/helm",
+    "sudo chmod +x /usr/local/bin/helm",
+    "rm -rf /tmp/helm /tmp/helm.tar.gz"
     ]
   }
 

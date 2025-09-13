@@ -66,13 +66,22 @@ build {
   provisioner "shell" {
   inline = [
     "set -eux",
+
+    # Detect root NVMe device and partition
+    "ROOT_DEVICE=$(findmnt / -o SOURCE -n | sed 's/p[0-9]*$//')",
+    "PARTITION=$(lsblk -no NAME $ROOT_DEVICE | tail -n1)",
+    "echo Root device: $ROOT_DEVICE, Partition: $PARTITION",
+
+    # Grow partition (force it to the full volume)
+    "sudo growpart $ROOT_DEVICE 1 || true",
+    "sudo xfs_growfs /",
     
     # Grow the root partition for AL2023
-    "ROOT_DEVICE=$(findmnt / -o SOURCE -n | sed 's/p[0-9]*$//')",
-    "echo Root device: $ROOT_DEVICE",
-    "sudo growpart $ROOT_DEVICE 1 || true",
-    "sudo xfs_growfs / || true",
-    "df -h /",
+    #"ROOT_DEVICE=$(findmnt / -o SOURCE -n | sed 's/p[0-9]*$//')",
+    #"echo Root device: $ROOT_DEVICE",
+    #"sudo growpart $ROOT_DEVICE 1 || true",
+    #"sudo xfs_growfs / || true",
+    #"df -h /",
 
     # Install base tools
     "sudo dnf install -y unzip tar gzip git jq amazon-ssm-agent telnet bind-utils nmap-ncat docker",

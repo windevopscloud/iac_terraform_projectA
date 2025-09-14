@@ -54,7 +54,9 @@ data "kubernetes_config_map" "aws_auth" {
     namespace = "kube-system"
   }
 
-  depends_on = [aws_eks_cluster.this]
+  depends_on = [aws_eks_cluster.this,
+    aws_eks_node_group.this
+  ]
 }
 
 data "aws_ssm_parameter" "eks_ami" {

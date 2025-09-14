@@ -69,6 +69,7 @@ resource "kubernetes_config_map_v1_data" "eks_tools_auth" {
 
   depends_on = [
     aws_eks_cluster.this,
+    aws_eks_node_group.this,
     data.kubernetes_config_map.aws_auth,
     aws_iam_role.eks_tools
   ]

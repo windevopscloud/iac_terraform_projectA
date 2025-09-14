@@ -13,30 +13,30 @@ resource "aws_instance" "eks_tools" {
     volume_type = "gp3"
   }
 
+  user_data = base64encode(<<-EOF
+    #!/bin/bash
+    set -x  # Enable debugging
+
+    # Update kubeconfig
+    echo "Updating kubeconfig..."
+    aws eks update-kubeconfig --region ${var.aws_region} --name ${aws_eks_cluster.this.name}
+    
+    # Verify connection
+    echo "Testing cluster connection..."
+    kubectl cluster-info
+   EOF
+  )
+
   user_data_replace_on_change = true
 
   tags = {
     Name        = "eks_tools-${var.environment}"
     Environment = var.environment
   }
-}
 
-resource "null_resource" "eks_tools_update_kubeconfig_ssm" {
-  depends_on = [aws_instance.eks_tools, aws_eks_cluster.this]
-
-  # This runs locally but sends command to EC2 via SSM
-  provisioner "local-exec" {
-    command = <<-EOT
-      aws ssm send-command \
-        --instance-ids ${aws_instance.eks_tools.id} \
-        --document-name "AWS-RunShellScript" \
-        --parameters 'commands=["aws eks update-kubeconfig --region ${var.aws_region} --name ${aws_eks_cluster.this.name}"]' \
-        --region ${var.aws_region}
-    EOT
-  }
-
-  triggers = {
-    cluster_arn = aws_eks_cluster.this.arn
-    instance_id = aws_instance.eks_tools.id
-  }
+  depends_on = [
+    aws_eks_cluster.this,      # Wait for cluster creation
+    aws_eks_node_group.this,   # Wait for nodegroup creation
+    kubernetes_config_map_v1_data.eks_tools_auth  # Wait for aws-auth configmap
+  ]
 }

@@ -35,8 +35,8 @@ resource "aws_instance" "eks_tools" {
   }
 
   depends_on = [
-    aws_eks_cluster.this,      # Wait for cluster creation
-    aws_eks_node_group.this,   # Wait for nodegroup creation
-    kubernetes_config_map_v1_data.eks_tools_auth  # Wait for aws-auth configmap
+    aws_eks_cluster.this,                        # Wait for cluster creation
+    aws_eks_node_group.this,                     # Wait for nodegroup creation
+    kubernetes_config_map_v1_data.eks_tools_auth # Wait for aws-auth configmap
   ]
 }

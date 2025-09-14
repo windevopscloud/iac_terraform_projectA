@@ -8,6 +8,7 @@ data "terraform_remote_state" "bootstrap" {
   }
 }
 
+# VPC, Subnet, RT, SG information from bootstrap terraform state
 #data "aws_vpc" "selected" {
 #  id = data.terraform_remote_state.bootstrap.outputs.vpc_id
 #}
@@ -43,26 +44,6 @@ data "aws_route_tables" "private" {
   }
 }
 
-data "aws_eks_cluster_auth" "this" {
-  name = aws_eks_cluster.this.name
-}
-
-# Get the existing aws-auth configmap
-data "kubernetes_config_map" "aws_auth" {
-  metadata {
-    name      = "aws-auth"
-    namespace = "kube-system"
-  }
-
-  depends_on = [aws_eks_cluster.this,
-    aws_eks_node_group.this
-  ]
-}
-
-data "aws_ssm_parameter" "eks_ami" {
-  name = "/aws/service/eks/optimized-ami/${var.eks_version}/amazon-linux-2/recommended/image_id"
-}
-
 data "aws_security_group" "github_runner" {
   filter {
     name   = "tag:Name"
@@ -77,6 +58,33 @@ data "aws_security_group" "vpc_endpoint_ssm" {
   }
 }
 
+# EKS Cluster information from AWS
+data "aws_eks_cluster_auth" "this" {
+  name = aws_eks_cluster.this.name
+}
+
+data "tls_certificate" "eks" {
+  url = aws_eks_cluster.this.identity[0].oidc[0].issuer
+}
+
+# Get the existing aws-auth configmap
+data "kubernetes_config_map" "aws_auth" {
+  metadata {
+    name      = "aws-auth"
+    namespace = "kube-system"
+  }
+
+  depends_on = [aws_eks_cluster.this,
+    aws_eks_node_group.this
+  ]
+}
+
+# Optimised AMI for EKS node groups EC2
+data "aws_ssm_parameter" "eks_ami" {
+  name = "/aws/service/eks/optimized-ami/${var.eks_version}/amazon-linux-2/recommended/image_id"
+}
+
+# Custom AMI for EKS Tools EC2
 data "aws_ami" "eks_tools" {
   most_recent = true
   owners      = ["self"]

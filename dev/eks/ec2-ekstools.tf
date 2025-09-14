@@ -19,11 +19,11 @@ resource "aws_instance" "eks_tools" {
 
     # Update kubeconfig
     echo "Updating kubeconfig..."
-    aws eks update-kubeconfig --region ${var.aws_region} --name ${aws_eks_cluster.this.name}
+    aws eks update-kubeconfig --region ${var.aws_region} --name ${aws_eks_cluster.this.name} --kubeconfig /root/.kube/config
     
     # Verify connection
     echo "Testing cluster connection..."
-    kubectl cluster-info
+    kubectl --kubeconfig=/root/.kube/config cluster-info
    EOF
   )
 

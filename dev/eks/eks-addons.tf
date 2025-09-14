@@ -24,3 +24,13 @@ resource "aws_eks_addon" "vpc_cni" {
 
   depends_on = [aws_eks_node_group.this]
 }
+
+resource "aws_eks_addon" "ebs_csi_driver" {
+  cluster_name = aws_eks_cluster.this.name
+  addon_name   = "csi-driver"
+  
+  # IAM role for the driver (required)
+  service_account_role_arn = aws_iam_role.ebs_csi_driver.arn
+
+  depends_on = [aws_eks_node_group.this]
+}

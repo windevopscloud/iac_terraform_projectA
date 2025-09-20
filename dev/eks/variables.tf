@@ -98,6 +98,12 @@ variable "eks_addon_vpc_cni" {
   #default     = v1.20.1-eksbuild.3
 }
 
+variable "eks_addon_ebs_csi_driver" {
+  type        = string
+  description = "Addon version for EKS"
+  #default     = v1.20.1-eksbuild.3
+}
+
 variable "eks_tools_instance_type" {
   type        = string
   description = "List of instance types for worker nodes"

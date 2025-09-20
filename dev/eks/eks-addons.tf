@@ -27,7 +27,7 @@ resource "aws_eks_addon" "vpc_cni" {
 
 resource "aws_eks_addon" "ebs_csi_driver" {
   cluster_name  = aws_eks_cluster.this.name
-  addon_name    = "csi-driver"
+  addon_name    = "aws-ebs-csi-driver"
   addon_version = var.eks_addon_ebs_csi_driver
   # IAM role for the driver (required)
   service_account_role_arn = aws_iam_role.ebs_csi_driver.arn

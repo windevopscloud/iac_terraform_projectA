@@ -15,12 +15,12 @@ resource "aws_iam_role" "eks_tools" {
         Principal = {
           AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/terraform_deployer"
         }
-        Action = "sts:AssumeRole"
-        Condition = {
-          StringLike = {
-            "aws:userid" = "*:github-runner-*" # Any user but only github-runner sessions
-          }
-        }
+        #Action = "sts:AssumeRole"
+        #Condition = {
+        #  StringLike = {
+        #    "aws:userid" = "*:github-runner-*" # Any user but only github-runner sessions
+        #  }
+        #}
       }
     ]
   })
@@ -174,6 +174,7 @@ resource "kubernetes_config_map_v1_data" "eks_tools_auth" {
   ]
 }
 
+/*
 resource "aws_iam_user_policy" "terraform_deployer_sts" {
   name = "terraform-deployer-sts-access"
   user = "terraform_deployer"
@@ -195,3 +196,4 @@ resource "aws_iam_user_policy" "terraform_deployer_sts" {
     ]
   })
 }
+*/

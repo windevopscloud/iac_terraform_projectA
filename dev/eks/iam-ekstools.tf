@@ -1,14 +1,23 @@
-# IAM Role
+# IAM Role for EKS Tools and allowing terraform_deployer user to assume this role
 resource "aws_iam_role" "eks_tools" {
   name = "eks-tools-${var.environment}-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{
-      Effect    = "Allow"
-      Principal = { Service = "ec2.amazonaws.com" }
-      Action    = "sts:AssumeRole"
-    }]
+    Statement = [
+      {
+        Effect    = "Allow"
+        Principal = { Service = "ec2.amazonaws.com" }
+        Action    = "sts:AssumeRole"
+      },
+      {
+        Effect    = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/terraform_deployer"
+        }
+        Action    = "sts:AssumeRole"
+      }
+    ]
   })
 }
 
@@ -124,4 +133,38 @@ resource "kubernetes_cluster_role_binding" "eks_tools_binding" {
     name      = kubernetes_cluster_role.eks_tools.metadata[0].name
     api_group = "rbac.authorization.k8s.io"
   }
+}
+
+# Add EKS tools IAM role to aws-auth
+resource "kubernetes_config_map_v1_data" "eks_tools_auth" {
+  metadata {
+    name      = "aws-auth"
+    namespace = "kube-system"
+  }
+
+  data = {
+    "mapRoles" = yamlencode(concat(
+      # Get existing mappings from the current aws-auth
+      try(yamldecode(data.kubernetes_config_map.aws_auth.data.mapRoles), []),
+      # Add our EKS tools mapping
+      [{
+        rolearn  = aws_iam_role.eks_tools.arn
+        username = "eks-tools-user"
+        groups   = ["eks-tools-group"]
+      }]
+    ))
+  }
+
+  force = true
+
+  lifecycle {
+    ignore_changes = [data]
+  }
+
+  depends_on = [
+    aws_eks_cluster.this,
+    aws_eks_node_group.this,
+    data.kubernetes_config_map.aws_auth,
+    aws_iam_role.eks_tools
+  ]
 }

@@ -15,3 +15,4 @@ lt_instance_types        = ["t3.medium"]
 lt_disk_size             = 20
 lt_key_name              = null
 eks_tools_instance_type  = "t3.medium"
+ecr_repos                = ["test1", "test2"]

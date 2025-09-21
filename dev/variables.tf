@@ -102,3 +102,9 @@ variable "eks_tools_instance_type" {
   description = "List of instance types for worker nodes"
   #default     = ["t3.medium"]
 }
+
+variable "ecr_repos" {
+  type        = list(string)
+  description = "List of ecr repos"
+  #default     = ["test1", "test2"]
+}

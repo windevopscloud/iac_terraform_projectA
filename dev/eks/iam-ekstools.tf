@@ -15,7 +15,7 @@ resource "aws_iam_role" "eks_tools" {
         Principal = {
           AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/terraform_deployer"
         }
-        #Action = "sts:AssumeRole"
+        Action = "sts:AssumeRole"
         #Condition = {
         #  StringLike = {
         #    "aws:userid" = "*:github-runner-*" # Any user but only github-runner sessions

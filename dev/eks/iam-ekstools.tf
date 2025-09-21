@@ -173,3 +173,25 @@ resource "kubernetes_config_map_v1_data" "eks_tools_auth" {
     aws_iam_role.eks_tools
   ]
 }
+
+resource "aws_iam_user_policy" "terraform_deployer_sts" {
+  name = "terraform-deployer-sts-access"
+  user = "terraform_deployer"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "sts:AssumeRole",
+          "sts:TagSession",
+          "sts:GetCallerIdentity"
+        ]
+        Resource = [
+          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/eks-tools-${var.environment}-role"
+        ]
+      }
+    ]
+  })
+}

@@ -27,3 +27,20 @@ module "eks" {
     Terraform   = "true"
   }
 }
+
+module "ecr" {
+  source = "./ecr" # Should point to actual module path or repo url
+
+  environment      = var.environment
+  aws_region       = var.aws_region
+  eks_cluster_name = "${var.environment}-eks-cluster"
+  ecr_repos        = var.ecr_repos
+
+  tags = {
+    Environment = var.environment
+    Terraform   = "true"
+  }
+
+  # Ensure EKS Cluster and relevant resources are created first
+  depends_on = [module.eks]
+}

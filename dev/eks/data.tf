@@ -100,3 +100,6 @@ data "aws_ami" "eks_tools" {
     values = ["available"]
   }
 }
+
+# Caller Identity for iam eks tools
+data "aws_caller_identity" "current" {}

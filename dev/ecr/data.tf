@@ -8,7 +8,7 @@ data "aws_iam_role" "eks_tools" {
 }
 
 data "aws_iam_role" "github_runner" {
-  name = "GitHubRunnerRole-*"
+  name = "github-runner-${var.environment}-role"
 }
 
 # Get existing VPC endpoints

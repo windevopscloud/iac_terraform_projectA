@@ -25,12 +25,12 @@ variable "ssh_username" {
 
 variable "eks_version" {
   type = string
-  default = "1.30.14"
+  default = "1.35"
 }
 
 variable "kubectl_date" {
   type    = string
-  default = "2025-08-03"
+  default = "2026-08-26"
 }
 
 variable "eksctl_version" {
@@ -40,5 +40,5 @@ variable "eksctl_version" {
 
 variable "helm_version" {
   type    = string
-  default = "3.18.6"
+  default = "3.21.0"
 }

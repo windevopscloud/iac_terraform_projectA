@@ -62,7 +62,7 @@ resource "aws_iam_instance_profile" "eks_tools" {
 }
 
 #Kubernetes ClusterRole and ClusterRoleBinding
-resource "kubernetes_cluster_role" "eks_tools" {
+resource "kubernetes_cluster_role_v1" "eks_tools" {
   metadata {
     name = "eks-tools-role"
   }
@@ -121,7 +121,7 @@ resource "kubernetes_cluster_role" "eks_tools" {
   #}
 }
 
-resource "kubernetes_cluster_role_binding" "eks_tools_binding" {
+resource "kubernetes_cluster_role_binding_v1" "eks_tools_binding" {
   metadata {
     name = "eks-tools-binding"
   }
@@ -135,7 +135,7 @@ resource "kubernetes_cluster_role_binding" "eks_tools_binding" {
 
   role_ref {
     kind      = "ClusterRole"
-    name      = kubernetes_cluster_role.eks_tools.metadata[0].name
+    name      = kubernetes_cluster_role_v1.eks_tools.metadata[0].name
     api_group = "rbac.authorization.k8s.io"
   }
 }
@@ -150,7 +150,7 @@ resource "kubernetes_config_map_v1_data" "eks_tools_auth" {
   data = {
     "mapRoles" = yamlencode(concat(
       # Get existing mappings from the current aws-auth
-      try(yamldecode(data.kubernetes_config_map.aws_auth.data.mapRoles), []),
+      try(yamldecode(data.kubernetes_config_map_v1.aws_auth.data.mapRoles), []),
       # Add our EKS tools mapping
       [{
         rolearn  = aws_iam_role.eks_tools.arn
@@ -169,7 +169,7 @@ resource "kubernetes_config_map_v1_data" "eks_tools_auth" {
   depends_on = [
     aws_eks_cluster.this,
     aws_eks_node_group.this,
-    data.kubernetes_config_map.aws_auth,
+    data.kubernetes_config_map_v1.aws_auth,
     aws_iam_role.eks_tools
   ]
 }

@@ -121,7 +121,7 @@ resource "kubernetes_cluster_role_v1" "eks_tools" {
   #}
 }
 
-resource "kubernetes_cluster_role_binding" "eks_tools_binding" {
+resource "kubernetes_cluster_role_binding_v1" "eks_tools_binding" {
   metadata {
     name = "eks-tools-binding"
   }

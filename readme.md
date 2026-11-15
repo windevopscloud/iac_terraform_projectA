@@ -15,6 +15,7 @@ init_aws runs once from a GitHub-hosted runner and creates the left column. The 
 - **Runner label.** `runner_labels` in init_aws must match `runs-on: runner_projectA` in projectA.
 
 ## init_aws: what one run does
+![init_aws run](images/02-init_aws-run.png)
 
 The pipeline reads left to right on the top row, then right to left on the second row. Step 3 is the on-the-fly token: no token is copied by hand.
 
@@ -22,6 +23,7 @@ The pipeline reads left to right on the top row, then right to left on the secon
 - **Same name, no duplicate.** The runner name is fixed (`private-runner-poc`) and `--replace` overwrites the old entry.
 
 ## iac_terraform_projectA: what a run does
+![projectA run](images/03-iac_terraform_projectA-run.png)
 
 All three jobs run on the private runner. Plan and apply are separate jobs, and apply uses the exact plan file that was reviewed.
 

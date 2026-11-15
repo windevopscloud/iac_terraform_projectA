@@ -22,17 +22,6 @@ resource "aws_launch_template" "eks_nodes" {
     }
   }
 
-/*
-  user_data = base64encode(<<-EOF
-              #!/bin/bash
-              /etc/eks/bootstrap.sh ${var.eks_cluster_name} \
-                --apiserver-endpoint ${aws_eks_cluster.this.endpoint} \
-                --b64-cluster-ca ${aws_eks_cluster.this.certificate_authority[0].data} \
-                --kubelet-extra-args "--node-labels=eks.amazonaws.com/nodegroup=${var.eks_cluster_name}-nodegroup"
-              EOF
-  )
-*/
-
   tag_specifications {
     resource_type = "instance"
     tags          = merge(var.tags, { Name = "${var.eks_cluster_name}-node" })

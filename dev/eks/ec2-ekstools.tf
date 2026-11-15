@@ -25,7 +25,7 @@ resource "aws_instance" "eks_tools" {
     echo "Testing cluster connection..."
     kubectl --kubeconfig=/root/.kube/config cluster-info
    EOF
-  
+
   user_data_replace_on_change = true
 
   tags = {

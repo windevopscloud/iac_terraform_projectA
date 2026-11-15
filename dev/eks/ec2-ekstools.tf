@@ -13,7 +13,7 @@ resource "aws_instance" "eks_tools" {
     volume_type = "gp3"
   }
 
-  user_data = base64encode(<<-EOF
+  user_data = <<-EOF
     #!/bin/bash
     set -x  # Enable debugging
 
@@ -25,8 +25,7 @@ resource "aws_instance" "eks_tools" {
     echo "Testing cluster connection..."
     kubectl --kubeconfig=/root/.kube/config cluster-info
    EOF
-  )
-
+  
   user_data_replace_on_change = true
 
   tags = {

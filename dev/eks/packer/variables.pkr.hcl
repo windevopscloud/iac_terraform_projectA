@@ -40,5 +40,5 @@ variable "eksctl_version" {
 
 variable "helm_version" {
   type    = string
-  default = "3.21.0"
+  default = "3.21.2"
 }

@@ -2,8 +2,8 @@
 # Launch Template for Node Group
 # -----------------------------
 resource "aws_launch_template" "eks_nodes" {
-  name_prefix   = "${var.eks_cluster_name}-lt"
-  image_id      = data.aws_ssm_parameter.eks_ami.value
+  name_prefix = "${var.eks_cluster_name}-lt"
+  #image_id      = data.aws_ssm_parameter.eks_ami.value
   instance_type = var.lt_instance_types[0]
   key_name      = var.lt_key_name # Add if you need SSH access
 
@@ -21,15 +21,6 @@ resource "aws_launch_template" "eks_nodes" {
       encrypted             = true
     }
   }
-
-  user_data = base64encode(<<-EOF
-              #!/bin/bash
-              /etc/eks/bootstrap.sh ${var.eks_cluster_name} \
-                --apiserver-endpoint ${aws_eks_cluster.this.endpoint} \
-                --b64-cluster-ca ${aws_eks_cluster.this.certificate_authority[0].data} \
-                --kubelet-extra-args "--node-labels=eks.amazonaws.com/nodegroup=${var.eks_cluster_name}-nodegroup"
-              EOF
-  )
 
   tag_specifications {
     resource_type = "instance"

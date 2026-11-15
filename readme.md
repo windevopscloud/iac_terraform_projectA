@@ -5,6 +5,8 @@ Two GitHub repos build one chain. **init_aws** prepares the AWS account and a pr
 created by init_aws created by iac_terraform_projectA
 
 ## How the two repos connect
+![How the two repos connect](images/01-how-repos-connect.png)
+
 
 init_aws runs once from a GitHub-hosted runner and creates the left column. The runner it creates then picks up every projectA job from inside the private subnet and applies the right column.
 

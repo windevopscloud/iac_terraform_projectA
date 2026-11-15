@@ -111,6 +111,22 @@ jobs:
           set -euo pipefail
           echo "Building new AMI..."
           packer build . | tee build.log
+      
+      - name: Remove old AMIs (keep newest 3)
+        if: env.PACKER_CHANGED == 'true' || env.AMI_EXISTS == 'false'
+        run: |
+          set -euo pipefail
+          aws ec2 describe-images --owners self \
+            --filters "Name=name,Values=${{ env.AMI_NAME_PREFIX }}-*" \
+            --query 'sort_by(Images,&CreationDate)[:-3].[ImageId,BlockDeviceMappings[0].Ebs.SnapshotId]' \
+            --output text | while read -r AMI SNAP; do
+              [ -z "$AMI" ] && continue
+              echo "Removing $AMI / $SNAP"
+              aws ec2 deregister-image --image-id "$AMI"
+              if [ "$SNAP" != "None" ]; then
+                aws ec2 delete-snapshot --snapshot-id "$SNAP"
+              fi
+            done
 
   terraform-plan:
     runs-on: runner_projectA

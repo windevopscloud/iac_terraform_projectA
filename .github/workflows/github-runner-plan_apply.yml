@@ -33,10 +33,10 @@ jobs:
       HOME: /tmp
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -91,7 +91,7 @@ jobs:
 
       - name: Setup Packer
         if: env.PACKER_CHANGED == 'true' || env.AMI_EXISTS == 'false'
-        uses: hashicorp/setup-packer@v2
+        uses: hashicorp/setup-packer@v3
         with:
           version: "1.16.2"
           
@@ -128,16 +128,16 @@ jobs:
     needs: [build-ami]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: "1.17.0"
           terraform_wrapper: false
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -172,7 +172,7 @@ jobs:
             ${{ github.event.inputs.terraform_flags }}
 
       - name: Upload Terraform Plan Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: terraform-plan
           path: ${{ env.TF_DIRECTORY }}/tfplan
@@ -190,11 +190,11 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       # 🔹 Download Plan Artifact if provided
       - name: Download Plan Artifact if provided
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         if: github.event.inputs.plan_artifact != ''
         with:
           name: ${{ github.event.inputs.plan_artifact }}
@@ -202,12 +202,12 @@ jobs:
         continue-on-error: true
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: "1.17.0"
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

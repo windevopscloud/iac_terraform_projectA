@@ -1,4 +1,5 @@
 # ProjectA AWS Architecture
+![AWS resources](images/04-aws-resources.png)
 
 Two GitHub repos build one chain. **init_aws** prepares the AWS account and a private self-hosted runner. **iac_terraform_projectA** uses that runner to build the AMI, the EKS cluster and ECR.
 

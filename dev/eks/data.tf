@@ -80,14 +80,16 @@ data "kubernetes_config_map_v1" "aws_auth" {
   ]
 }
 
+/*
 # Optimised AMI for EKS node groups EC2
-#data "aws_ssm_parameter" "eks_ami" {
-#  name = "/aws/service/eks/optimized-ami/${var.eks_version}/amazon-linux-2/recommended/image_id"
-#}
+data "aws_ssm_parameter" "eks_ami" {
+  name = "/aws/service/eks/optimized-ami/${var.eks_version}/amazon-linux-2/recommended/image_id"
+}
 
 data "aws_ssm_parameter" "eks_ami" {
   name = "/aws/service/eks/optimized-ami/${var.eks_version}/amazon-linux-2023/x86_64/standard/recommended/image_id"
 }
+*/
 
 # Custom AMI for EKS Tools EC2
 data "aws_ami" "eks_tools" {

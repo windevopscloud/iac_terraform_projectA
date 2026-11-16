@@ -13,7 +13,7 @@ resource "aws_iam_user" "smtp" {
 resource "aws_iam_user_policy" "smtp" {
   user = aws_iam_user.smtp.name
   policy = jsonencode({
-    Version = "2012-10-17"
+    Version   = "2012-10-17"
     Statement = [{ Effect = "Allow", Action = "ses:SendRawEmail", Resource = "*" }]
   })
 }

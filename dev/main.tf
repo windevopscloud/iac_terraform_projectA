@@ -44,3 +44,19 @@ module "ecr" {
   # Ensure EKS Cluster and relevant resources are created first
   depends_on = [module.eks]
 }
+
+module "rds" {
+  source = "./rds" # Should point to actual module path or repo url
+
+  environment              = var.environment
+  node_security_group_id   = module.eks.node_security_group_id
+  db_name                  = var.db_name
+  db_username              = var.db_username
+  db_engine_version        = var.db_engine_version
+  db_instance_class        = var.db_instance_class
+  db_allocated_storage     = var.db_allocated_storage
+  db_multi_az              = var.db_multi_az
+  db_backup_retention_days = var.db_backup_retention_days
+
+  tags = { Environment = var.environment, Terraform = "true" }
+}

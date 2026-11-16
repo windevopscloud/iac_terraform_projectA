@@ -12,3 +12,7 @@ output "cluster_name" {
 output "cluster_certificate_authority_data" {
   value = aws_eks_cluster.this.certificate_authority[0].data
 }
+
+output "node_security_group_id" {
+  value = aws_security_group.eks_nodes_sg.id
+}

@@ -23,3 +23,10 @@ db_instance_class        = "db.t4g.micro"
 db_allocated_storage     = 20
 db_multi_az              = false
 db_backup_retention_days = 7
+ses_identities = [
+  "windevopscloud+sender@gmail.com",
+  "windevopscloud+user1@gmail.com",
+  "windevopscloud+user2@gmail.com",
+  "windevopscloud+user3@gmail.com",
+  "windevopscloud+user4@gmail.com"
+]

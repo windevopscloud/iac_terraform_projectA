@@ -109,8 +109,8 @@ variable "ecr_repos" {
   #default     = ["test1", "test2"]
 }
 
-variable "db_name" { 
-  type = string 
+variable "db_name" {
+  type = string
 }
 
 variable "db_username" {
@@ -130,7 +130,7 @@ variable "db_allocated_storage" {
 }
 
 variable "db_multi_az" {
- type = bool
+  type = bool
 }
 
 variable "db_backup_retention_days" {

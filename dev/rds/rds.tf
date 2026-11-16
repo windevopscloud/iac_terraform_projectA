@@ -1,11 +1,11 @@
 resource "aws_db_subnet_group" "this" {
   name       = "signup-db-${var.environment}"
-  subnet_ids = data.aws_subnets.isolated.ids      # was var.isolated_subnets
+  subnet_ids = data.aws_subnets.isolated.ids # was var.isolated_subnets
   tags       = var.tags
 
   lifecycle {
     precondition {
-      condition  = length(data.aws_subnets.isolated.ids) >= 2
+      condition     = length(data.aws_subnets.isolated.ids) >= 2
       error_message = "Need 2 isolated subnets (set create_isolated_subnets = yes in init_aws)."
     }
   }
@@ -14,7 +14,7 @@ resource "aws_db_subnet_group" "this" {
 resource "aws_security_group" "rds" {
   name_prefix = "signup-rds-${var.environment}-"
   description = "Postgres from EKS nodes only"
-  vpc_id     = data.aws_vpc.selected.id            # was var.vpc_id
+  vpc_id      = data.aws_vpc.selected.id # was var.vpc_id
   tags        = merge(var.tags, { Name = "signup-rds-sg" })
 }
 
@@ -59,8 +59,8 @@ resource "aws_db_instance" "this" {
   multi_az               = var.db_multi_az
 
   backup_retention_period = var.db_backup_retention_days
-  skip_final_snapshot     = true   # poc only
-  deletion_protection     = false  # poc only
+  skip_final_snapshot     = true  # poc only
+  deletion_protection     = false # poc only
 
   tags = var.tags
 }

@@ -136,7 +136,3 @@ variable "db_multi_az" {
 variable "db_backup_retention_days" {
   type = number
 }
-
-variable "ses_identities" {
-  type = list(string)
-}

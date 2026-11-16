@@ -65,9 +65,7 @@ module "ses" {
   source = "./ses"
 
   environment            = var.environment
-  aws_region             = var.aws_region
   node_security_group_id = module.eks.node_security_group_id
-  ses_identities         = var.ses_identities
 
   tags = { Environment = var.environment, Terraform = "true" }
 }

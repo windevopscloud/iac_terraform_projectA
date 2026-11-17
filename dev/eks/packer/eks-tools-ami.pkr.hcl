@@ -80,6 +80,7 @@ build {
 
     # Install base tools
     "sudo dnf install -y unzip tar gzip git jq amazon-ssm-agent telnet bind-utils nmap-ncat docker",
+    "sudo dnf install -y postgresql17 || sudo dnf install -y postgresql16 || sudo dnf install -y postgresql15",
     "sudo systemctl enable amazon-ssm-agent",
     "sudo systemctl start amazon-ssm-agent",
     "sudo systemctl enable docker",

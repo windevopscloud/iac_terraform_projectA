@@ -1,5 +1,5 @@
 resource "aws_db_subnet_group" "this" {
-  name       = "signup-db-${var.environment}"
+  name       = "signup-rds-${var.environment}"
   subnet_ids = data.aws_subnets.isolated.ids # was var.isolated_subnets
   tags       = var.tags
 

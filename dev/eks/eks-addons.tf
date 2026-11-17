@@ -34,3 +34,11 @@ resource "aws_eks_addon" "ebs_csi_driver" {
 
   depends_on = [aws_eks_node_group.this]
 }
+
+resource "aws_eks_addon" "secrets_store_csi_provider" {
+  cluster_name  = aws_eks_cluster.this.name
+  addon_name    = "aws-secrets-store-csi-driver-provider"
+  addon_version = var.eks_addon_secrets_store_csi
+
+  depends_on = [aws_eks_node_group.this]
+}

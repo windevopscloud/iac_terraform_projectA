@@ -136,3 +136,15 @@ variable "db_multi_az" {
 variable "db_backup_retention_days" {
   type = number
 }
+
+variable "eks_addon_secrets_store_csi" {
+  type = string
+}
+
+variable "app_namespace" {
+  type = string
+}
+
+variable "app_service_account" {
+  type = string
+}

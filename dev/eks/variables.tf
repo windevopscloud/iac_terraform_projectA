@@ -109,3 +109,8 @@ variable "eks_tools_instance_type" {
   description = "List of instance types for worker nodes"
   #default     = ["t3.medium"]
 }
+
+variable "eks_addon_secrets_store_csi" {
+  type        = string
+  description = "Addon version for aws-secrets-store-csi-driver-provider"
+}

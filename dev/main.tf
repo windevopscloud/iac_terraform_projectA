@@ -58,6 +58,7 @@ module "rds" {
   db_allocated_storage     = var.db_allocated_storage
   db_multi_az              = var.db_multi_az
   db_backup_retention_days = var.db_backup_retention_days
+  tools_security_group_id  = module.eks.tools_security_group_id
 
   tags = { Environment = var.environment, Terraform = "true" }
 }

@@ -8,3 +8,4 @@ variable "db_allocated_storage" { type = number }
 variable "db_multi_az" { type = bool }
 variable "db_backup_retention_days" { type = number }
 variable "tags" { type = map(string) }
+variable "tools_security_group_id" { type = string }

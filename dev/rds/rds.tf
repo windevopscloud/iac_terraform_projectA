@@ -1,5 +1,5 @@
 resource "aws_db_subnet_group" "this" {
-  name       = "signup-db-${var.environment}"
+  name       = "signup-rds-${var.environment}"
   subnet_ids = data.aws_subnets.isolated.ids # was var.isolated_subnets
   tags       = var.tags
 
@@ -63,4 +63,24 @@ resource "aws_db_instance" "this" {
   deletion_protection     = false # poc only
 
   tags = var.tags
+}
+
+resource "aws_security_group_rule" "rds_ingress_tools" {
+  type                     = "ingress"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
+  source_security_group_id = var.tools_security_group_id
+  security_group_id        = aws_security_group.rds.id
+  description              = "Postgres from EKS tools instance"
+}
+
+resource "aws_security_group_rule" "tools_egress_rds" {
+  type                     = "egress"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.rds.id
+  security_group_id        = var.tools_security_group_id
+  description              = "Postgres to RDS"
 }

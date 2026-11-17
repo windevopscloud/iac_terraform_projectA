@@ -16,3 +16,10 @@ output "cluster_certificate_authority_data" {
 output "node_security_group_id" {
   value = aws_security_group.eks_nodes_sg.id
 }
+
+output "tools_security_group_id" {
+  value = aws_security_group.eks_tools_sg.id
+}
+
+output "oidc_provider_arn" { value = aws_iam_openid_connect_provider.eks.arn }
+output "oidc_provider_url" { value = aws_iam_openid_connect_provider.eks.url }

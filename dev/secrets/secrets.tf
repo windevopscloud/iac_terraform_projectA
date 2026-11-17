@@ -86,3 +86,9 @@ resource "aws_vpc_endpoint" "secretsmanager" {
   security_group_ids  = [aws_security_group.secretsmanager_vpce.id]
   tags                = merge(var.tags, { Name = "secretsmanager-vpc-endpoint" })
 }
+
+resource "aws_secretsmanager_secret" "rds_app" {
+  name                    = "signup/poc/rds-app"
+  recovery_window_in_days = 0
+  tags                    = var.tags
+}

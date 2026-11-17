@@ -1,1 +1,0 @@
-data "aws_secretsmanager_secret" "rds_app" { name = "signup/poc/rds-app" }

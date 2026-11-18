@@ -73,3 +73,17 @@ resource "aws_ecr_repository_policy" "this" {
     ]
   })
 }
+
+resource "aws_iam_role_policy" "runner_ecr_login" {
+  name = "ecr-get-authorization-token"
+  role = data.aws_iam_role.github_runner.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = "ecr:GetAuthorizationToken"
+      Resource = "*"
+    }]
+  })
+}

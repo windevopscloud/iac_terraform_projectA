@@ -84,7 +84,16 @@ module "secrets" {
   secret_arns = [
     module.rds.db_secret_arn,
     module.ses.smtp_secret_arn,
+    module.secrets.app_secret_arn,
   ]
 
   tags = { Environment = var.environment, Terraform = "true" }
+}
+
+module "s3" {
+  source      = "./s3"
+  environment = var.environment
+  aws_region  = var.aws_region
+
+  depends_on = [module.eks]
 }

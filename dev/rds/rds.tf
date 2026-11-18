@@ -84,3 +84,10 @@ resource "aws_security_group_rule" "tools_egress_rds" {
   security_group_id        = var.tools_security_group_id
   description              = "Postgres to RDS"
 }
+
+# Publish endpoint for pipelines
+resource "aws_ssm_parameter" "db_host" {
+  name  = "/rds/${aws_db_instance.this.identifier}/endpoint"
+  type  = "String"
+  value = aws_db_instance.this.address
+}

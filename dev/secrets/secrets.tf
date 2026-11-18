@@ -92,3 +92,9 @@ resource "aws_secretsmanager_secret" "rds_app" {
   recovery_window_in_days = 0
   tags                    = var.tags
 }
+
+resource "aws_secretsmanager_secret" "app" {
+  name                    = "signup/poc/app"
+  recovery_window_in_days = 0
+  tags                    = var.tags
+}

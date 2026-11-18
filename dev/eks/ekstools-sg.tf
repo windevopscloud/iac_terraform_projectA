@@ -36,3 +36,14 @@ resource "aws_security_group_rule" "eks_tools_egress_vpce" {
   security_group_id = aws_security_group.eks_tools_sg.id
   description       = "Allow VPCE access from Nodes"
 }
+
+# Tools EC2 -> S3 via gateway endpoint (to fetch deploy bundles)
+resource "aws_security_group_rule" "eks_tools_egress_s3" {
+  type              = "egress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  prefix_list_ids   = [aws_vpc_endpoint.s3.prefix_list_id]
+  security_group_id = aws_security_group.eks_tools_sg.id
+  description       = "Allow S3 access from EKS tools"
+}

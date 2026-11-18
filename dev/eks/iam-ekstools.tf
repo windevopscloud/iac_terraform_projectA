@@ -76,13 +76,25 @@ resource "kubernetes_cluster_role_v1" "eks_tools" {
   rule {
     api_groups = ["apps"]
     resources  = ["deployments", "replicasets", "statefulsets", "daemonsets"]
-    verbs      = ["get", "list", "watch", "update", "patch"]
+    verbs      = ["get", "list", "watch", "create", "update", "patch"]
   }
 
   rule {
     api_groups = ["batch"]
     resources  = ["jobs", "cronjobs"]
     verbs      = ["get", "list", "watch", "create", "update", "patch", "delete"]
+  }
+
+  rule {
+    api_groups = [""]
+    resources  = ["serviceaccounts"]
+    verbs      = ["get", "list", "watch", "create", "update", "patch"]
+  }
+
+  rule {
+    api_groups = ["secrets-store.csi.x-k8s.io"]
+    resources  = ["secretproviderclasses"]
+    verbs      = ["get", "list", "watch", "create", "update", "patch"]
   }
 
   # For Ingress resources (inbound traffic)

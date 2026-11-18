@@ -6,7 +6,7 @@ module "eks" {
   environment                 = var.environment
   aws_region                  = var.aws_region
   state_bucket_name           = var.state_bucket_name
-  eks_cluster_name            = "${var.environment}-eks-cluster"
+  eks_cluster_name            = "var.eks_cluster_name"
   eks_version                 = var.eks_version
   eks_addon_coredns           = var.eks_addon_coredns
   eks_addon_kube_proxy        = var.eks_addon_kube_proxy
@@ -34,7 +34,7 @@ module "ecr" {
 
   environment      = var.environment
   aws_region       = var.aws_region
-  eks_cluster_name = "${var.environment}-eks-cluster"
+  eks_cluster_name = "var.eks_cluster_name"
   ecr_repos        = var.ecr_repos
 
   tags = {

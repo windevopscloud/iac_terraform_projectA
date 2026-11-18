@@ -31,9 +31,12 @@ resource "aws_iam_role_policy" "app" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Effect   = "Allow"
-      Action   = ["secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"]
-      Resource = var.secret_arns
+      Effect = "Allow"
+      Action = ["secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"]
+      Resource = concat(var.secret_arns, [
+        aws_secretsmanager_secret.rds_app.arn,
+        aws_secretsmanager_secret.app.arn,
+      ])
     }]
   })
 }

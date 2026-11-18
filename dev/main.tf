@@ -93,7 +93,6 @@ module "s3" {
   source      = "./s3"
   environment = var.environment
   aws_region  = var.aws_region
-  db_host     = module.rds.db_endpoint
 
   depends_on = [module.eks]
 }

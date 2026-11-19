@@ -96,3 +96,13 @@ module "s3" {
 
   depends_on = [module.eks]
 }
+
+module "lbcontroller" {
+  source = "./lbcontroller"
+
+  environment       = var.environment
+  oidc_provider_arn = module.eks.oidc_provider_arn
+  oidc_provider_url = module.eks.oidc_provider_url
+
+  tags = { Environment = var.environment, Terraform = "true" }
+}

@@ -84,7 +84,6 @@ module "secrets" {
   secret_arns = [
     module.rds.db_secret_arn,
     module.ses.smtp_secret_arn,
-    module.secrets.app_secret_arn,
   ]
 
   tags = { Environment = var.environment, Terraform = "true" }
@@ -96,4 +95,14 @@ module "s3" {
   aws_region  = var.aws_region
 
   depends_on = [module.eks]
+}
+
+module "lbcontroller" {
+  source = "./lbcontroller"
+
+  environment       = var.environment
+  oidc_provider_arn = module.eks.oidc_provider_arn
+  oidc_provider_url = module.eks.oidc_provider_url
+
+  tags = { Environment = var.environment, Terraform = "true" }
 }

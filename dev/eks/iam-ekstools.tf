@@ -107,7 +107,7 @@ resource "kubernetes_cluster_role_v1" "eks_tools" {
   rule {
     api_groups = ["extensions", "networking.k8s.io"]
     resources  = ["ingresses"]
-    verbs      = ["get", "list", "watch"]
+    verbs      = ["get", "list", "watch", "create", "update", "patch"]
   }
 
   # For Network Policies (controls both ingress AND egress)

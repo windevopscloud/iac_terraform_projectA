@@ -130,3 +130,14 @@ resource "aws_security_group_rule" "nodes_egress_dns" {
   security_group_id = aws_security_group.eks_nodes_sg.id
   description       = "Allow DNS resolution within VPC"
 }
+
+# ALB (public subnets) -> app pods
+resource "aws_security_group_rule" "nodes_ingress_alb" {
+  type              = "ingress"
+  from_port         = 8000
+  to_port           = 8000
+  protocol          = "tcp"
+  cidr_blocks       = [for subnet in data.aws_subnet.public_for_sg : subnet.cidr_block]
+  security_group_id = aws_security_group.eks_nodes_sg.id
+  description       = "Allow app traffic from ALB in public subnets"
+}

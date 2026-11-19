@@ -1,0 +1,34 @@
+name: mirror-lbc-image
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Controller image tag"
+        required: true
+        default: "v2.14.1"
+
+env:
+  AWS_REGION: us-east-1
+  AWS_DEFAULT_REGION: us-east-1
+
+jobs:
+  mirror:
+    runs-on: runner_projectA
+    env:
+      VERSION: ${{ github.event.inputs.version }}
+    steps:
+      - name: Copy image from public ECR to private ECR
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          REGISTRY="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+          SRC="public.ecr.aws/eks/aws-load-balancer-controller:${VERSION}"
+          DST="${REGISTRY}/aws-load-balancer-controller:${VERSION}"
+
+          aws ecr get-login-password --region "$AWS_REGION" | \
+            docker login --username AWS --password-stdin "$REGISTRY"
+          docker pull "$SRC"
+          docker tag "$SRC" "$DST"
+          docker push "$DST"
+          docker logout "$REGISTRY" || true
+          echo "Mirrored ${DST}" >> "$GITHUB_STEP_SUMMARY"

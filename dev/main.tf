@@ -84,7 +84,6 @@ module "secrets" {
   secret_arns = [
     module.rds.db_secret_arn,
     module.ses.smtp_secret_arn,
-    module.secrets.app_secret_arn,
   ]
 
   tags = { Environment = var.environment, Terraform = "true" }

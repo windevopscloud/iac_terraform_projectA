@@ -101,6 +101,8 @@ module "lbcontroller" {
   source = "./lbcontroller"
 
   environment       = var.environment
+  aws_region        = var.aws_region
+  cluster_name      = var.eks_cluster_name
   oidc_provider_arn = module.eks.oidc_provider_arn
   oidc_provider_url = module.eks.oidc_provider_url
 

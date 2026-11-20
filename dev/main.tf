@@ -90,11 +90,10 @@ module "secrets" {
 }
 
 module "s3" {
-  source      = "./s3"
-  environment = var.environment
-  aws_region  = var.aws_region
-
-  depends_on = [module.eks]
+  source              = "./s3"
+  environment         = var.environment
+  aws_region          = var.aws_region
+  eks_tools_role_name = module.eks.tools_role_name
 }
 
 module "lbcontroller" {

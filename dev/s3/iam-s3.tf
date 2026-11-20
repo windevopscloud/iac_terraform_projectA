@@ -34,7 +34,7 @@ resource "aws_iam_role_policy" "runner_bundles" {
 # Tools EC2: read bundles only
 resource "aws_iam_role_policy" "tools_bundles" {
   name = "bundles-read"
-  role = data.aws_iam_role.eks_tools.name
+  role = var.eks_tools_role_name
 
   policy = jsonencode({
     Version = "2012-10-17"

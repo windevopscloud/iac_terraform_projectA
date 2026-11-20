@@ -103,6 +103,12 @@ resource "kubernetes_cluster_role_v1" "eks_tools" {
     verbs      = ["get", "list"]
   }
 
+  rule {
+    api_groups = [""]
+    resources  = ["pods/exec"]
+    verbs      = ["create"]
+  }
+
   # For Ingress resources (inbound traffic)
   rule {
     api_groups = ["extensions", "networking.k8s.io"]

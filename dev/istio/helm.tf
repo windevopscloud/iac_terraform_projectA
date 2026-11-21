@@ -8,7 +8,7 @@ resource "helm_release" "istio_base" {
   name             = "istio-base"
   namespace        = "istio-system"
   create_namespace = true
-  repository       = "https://istio-release.storage.googleapis.com/charts"
+  repository       = "https://blob.istio.io/istio-release/charts"
   chart            = "base"
   version          = var.istio_version
 }
@@ -16,7 +16,7 @@ resource "helm_release" "istio_base" {
 resource "helm_release" "istiod" {
   name       = "istiod"
   namespace  = "istio-system"
-  repository = "https://istio-release.storage.googleapis.com/charts"
+  repository = "https://blob.istio.io/istio-release/charts"
   chart      = "istiod"
   version    = var.istio_version
   wait       = false # the images are mirrored after this apply, like the LB controller

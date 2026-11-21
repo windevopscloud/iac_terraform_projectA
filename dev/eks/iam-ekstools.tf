@@ -55,6 +55,19 @@ resource "aws_iam_role_policy" "eks_tools_cluster_access" {
   })
 }
 
+resource "aws_iam_role_policy" "eks_tools_client_secrets" {
+  name = "eks-tools-client-secrets"
+  role = aws_iam_role.eks_tools.name
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["secretsmanager:GetSecretValue"]
+      Resource = "arn:aws:secretsmanager:${var.aws_region}:${data.aws_caller_identity.current.account_id}:secret:cognito/${var.environment}/external-clients-*"
+    }]
+  })
+}
+
 # Instance Profile for EC2
 resource "aws_iam_instance_profile" "eks_tools" {
   name_prefix = "eks-tools-profile-"
@@ -107,6 +120,12 @@ resource "kubernetes_cluster_role_v1" "eks_tools" {
     api_groups = [""]
     resources  = ["pods/exec"]
     verbs      = ["create"]
+  }
+
+  rule {
+    api_groups = [""]
+    resources  = ["secrets"]
+    verbs      = ["get", "create", "update", "patch"]
   }
 
   # For Ingress resources (inbound traffic)

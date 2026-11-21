@@ -1,0 +1,1 @@
+output "apigw_domains" { value = module.apigw.regional_domain_names }

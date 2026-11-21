@@ -27,6 +27,7 @@ resource "helm_release" "istiod" {
     { name = "pilot.replicaCount", value = "1" },
     { name = "pilot.resources.requests.cpu", value = "100m" },
     { name = "pilot.resources.requests.memory", value = "512Mi" },
+    { name = "meshConfig.outboundTrafficPolicy.mode", value = "REGISTRY_ONLY" },
   ]
 
   depends_on = [helm_release.istio_base]

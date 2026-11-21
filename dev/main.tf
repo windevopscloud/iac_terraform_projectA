@@ -153,3 +153,10 @@ module "apigw" {
   corp_user_pool_arn     = module.cognito.corp_user_pool_arn
   depends_on             = [module.istio_ingress]
 }
+
+module "istio_egress" {
+  source                 = "./istio_egress"
+  istio_version          = var.istio_version
+  istiod_id              = module.istio.istiod_id
+  node_security_group_id = module.eks.node_security_group_id
+}

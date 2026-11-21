@@ -248,6 +248,8 @@ resource "aws_ssm_parameter" "portal" {
     "/${var.environment}/cognito/ext/domain"         = "${aws_cognito_user_pool_domain.external.domain}.auth.${var.aws_region}.amazoncognito.com"
     "/${var.environment}/cognito/corp/web-client-id" = aws_cognito_user_pool_client.corp_web.id
     "/${var.environment}/cognito/corp/domain"        = "${aws_cognito_user_pool_domain.corp.domain}.auth.${var.aws_region}.amazoncognito.com"
+    "/${var.environment}/cognito/ext/issuer"         = "https://cognito-idp.${var.aws_region}.amazonaws.com/${aws_cognito_user_pool.external.id}"
+    "/${var.environment}/cognito/corp/issuer"        = "https://cognito-idp.${var.aws_region}.amazonaws.com/${aws_cognito_user_pool.corp.id}"
   }
 
   name  = each.key

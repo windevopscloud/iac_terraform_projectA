@@ -148,3 +148,19 @@ variable "app_namespace" {
 variable "app_service_account" {
   type = string
 }
+
+variable "cognito_external_scopes" {
+  type = list(string)
+}
+
+variable "cognito_external_clients" {
+  type = map(list(string))
+}
+
+variable "cognito_corp_scopes" {
+  type = list(string)
+}
+
+variable "cognito_corp_clients" {
+  type = map(list(string))
+}

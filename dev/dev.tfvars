@@ -26,3 +26,21 @@ db_backup_retention_days    = 7
 eks_addon_secrets_store_csi = "v3.1.1-eksbuild.1"
 app_namespace               = "default"
 app_service_account         = "signup-app"
+cognito_external_scopes     = ["intsvc1.invoke", "intsvc2.invoke", "extsvc1.invoke", "extsvc2.invoke"]
+
+cognito_external_clients = {
+  consumer-a = ["intsvc1.invoke", "intsvc2.invoke"]
+  intsvc3    = ["extsvc1.invoke"]
+  intsvc4    = ["extsvc2.invoke"]
+}
+
+cognito_corp_scopes = ["corpsvc1.invoke", "corpsvc2.invoke"]
+
+cognito_corp_clients = {
+  corp-app-a = ["corpsvc1.invoke", "corpsvc2.invoke"]
+}
+
+cognito_external_callback_urls = ["https://intsvc.windevopscloud.com/success/intsvc-list/"]
+cognito_external_logout_urls   = ["https://intsvc.windevopscloud.com/"]
+cognito_corp_callback_urls     = ["https://corpsvc.windevopscloud.com/success/corpsvc-list/"]
+cognito_corp_logout_urls       = ["https://corpsvc.windevopscloud.com/"]

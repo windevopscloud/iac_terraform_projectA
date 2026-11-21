@@ -107,3 +107,24 @@ module "lbcontroller" {
 
   tags = { Environment = var.environment, Terraform = "true" }
 }
+
+module "cognito" {
+  source = "./cognito"
+
+  environment            = var.environment
+  aws_region             = var.aws_region
+  external_scopes        = var.cognito_external_scopes
+  external_clients       = var.cognito_external_clients
+  corp_scopes            = var.cognito_corp_scopes
+  corp_clients           = var.cognito_corp_clients
+  external_callback_urls = var.cognito_external_callback_urls
+  external_logout_urls   = var.cognito_external_logout_urls
+  corp_callback_urls     = var.cognito_corp_callback_urls
+  corp_logout_urls       = var.cognito_corp_logout_urls
+  external_web_scopes    = var.cognito_external_web_scopes
+  corp_web_scopes        = var.cognito_corp_web_scopes
+  external_test_users    = var.cognito_external_test_users
+  corp_test_users        = var.cognito_corp_test_users
+
+  tags = { Environment = var.environment, Terraform = "true" }
+}

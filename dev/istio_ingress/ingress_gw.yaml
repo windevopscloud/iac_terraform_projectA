@@ -25,5 +25,5 @@ spec:
   selector: { istio: ingress-pub }
   servers:
   - port: { number: 443, name: https, protocol: HTTPS }
-    hosts: ["extsvc.windevopscloud.com"]
+    hosts: ["*"]
     tls: { mode: SIMPLE, credentialName: pub-tls }

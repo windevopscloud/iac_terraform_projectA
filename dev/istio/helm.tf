@@ -30,4 +30,5 @@ resource "helm_release" "istiod" {
   ]
 
   depends_on = [helm_release.istio_base]
+  replace    = true
 }

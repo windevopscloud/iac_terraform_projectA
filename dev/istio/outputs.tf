@@ -1,0 +1,1 @@
+output "istiod_id" { value = helm_release.istiod.id }

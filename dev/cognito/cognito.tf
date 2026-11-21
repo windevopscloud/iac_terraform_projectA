@@ -238,3 +238,20 @@ resource "aws_secretsmanager_secret_version" "test_users" {
     corp     = { for u in var.corp_test_users : u => random_password.corp_user[u].result }
   })
 }
+
+########################################
+# Values the portal pages read at deploy time
+########################################
+resource "aws_ssm_parameter" "portal" {
+  for_each = {
+    "/${var.environment}/cognito/ext/web-client-id"  = aws_cognito_user_pool_client.external_web.id
+    "/${var.environment}/cognito/ext/domain"         = "${aws_cognito_user_pool_domain.external.domain}.auth.${var.aws_region}.amazoncognito.com"
+    "/${var.environment}/cognito/corp/web-client-id" = aws_cognito_user_pool_client.corp_web.id
+    "/${var.environment}/cognito/corp/domain"        = "${aws_cognito_user_pool_domain.corp.domain}.auth.${var.aws_region}.amazoncognito.com"
+  }
+
+  name  = each.key
+  type  = "String"
+  value = each.value
+  tags  = var.tags
+}

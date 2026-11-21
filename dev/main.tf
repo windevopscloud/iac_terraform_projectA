@@ -136,3 +136,12 @@ module "istio" {
   istio_version     = var.istio_version
   oidc_provider_arn = module.eks.oidc_provider_arn
 }
+
+module "istio_ingress" {
+  source                 = "./istio_ingress"
+  environment            = var.environment
+  istio_version          = var.istio_version
+  private_subnet_ids     = local.private_subnets
+  node_security_group_id = module.eks.node_security_group_id
+  istiod_id              = module.istio.istiod_id
+}

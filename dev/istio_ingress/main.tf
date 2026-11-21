@@ -1,7 +1,8 @@
 locals {
   gateways = {
-    ext  = { name = "ingress-ext", namespace = "istio-ingress-ext", host = "intsvc.windevopscloud.com" }
-    corp = { name = "ingress-corp", namespace = "istio-ingress-corp", host = "corpsvc.windevopscloud.com" }
+    ext  = { name = "ingress-ext", namespace = "istio-ingress-ext", host = "intsvc.windevopscloud.com", public = false }
+    corp = { name = "ingress-corp", namespace = "istio-ingress-corp", host = "corpsvc.windevopscloud.com", public = false }
+    pub  = { name = "ingress-pub", namespace = "istio-ingress-pub", host = "extsvc.windevopscloud.com", public = true }
   }
 }
 
@@ -56,7 +57,7 @@ resource "helm_release" "gw" {
     replicaCount = 1
     resources    = { requests = { cpu = "100m", memory = "128Mi" }, limits = { cpu = "1", memory = "512Mi" } }
     service = {
-      type = "LoadBalancer"
+      type = each.value.public ? "ClusterIP" : "LoadBalancer"
       annotations = {
         "service.beta.kubernetes.io/aws-load-balancer-type"                              = "external"
         "service.beta.kubernetes.io/aws-load-balancer-nlb-target-type"                   = "ip"

@@ -45,6 +45,10 @@ resource "aws_api_gateway_vpc_link" "this" {
   for_each    = local.apis
   name        = "${var.environment}-${each.key}-vpclink"
   target_arns = [data.aws_lb.nlb[each.key].arn]
+
+  lifecycle {
+    ignore_changes = [target_arns]
+  }
 }
 
 resource "aws_api_gateway_rest_api" "this" {

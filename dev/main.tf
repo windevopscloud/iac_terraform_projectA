@@ -145,3 +145,11 @@ module "istio_ingress" {
   node_security_group_id = module.eks.node_security_group_id
   istiod_id              = module.istio.istiod_id
 }
+
+module "apigw" {
+  source                 = "./apigw"
+  environment            = var.environment
+  external_user_pool_arn = module.cognito.external_user_pool_arn
+  corp_user_pool_arn     = module.cognito.corp_user_pool_arn
+  depends_on             = [module.istio_ingress]
+}

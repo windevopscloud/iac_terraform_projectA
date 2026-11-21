@@ -17,3 +17,13 @@ spec:
   - port: { number: 443, name: https, protocol: HTTPS }
     hosts: ["corpsvc.windevopscloud.com"]
     tls: { mode: SIMPLE, credentialName: corp-tls }
+---
+apiVersion: networking.istio.io/v1
+kind: Gateway
+metadata: { name: pub-gw, namespace: istio-ingress-pub }
+spec:
+  selector: { istio: ingress-pub }
+  servers:
+  - port: { number: 443, name: https, protocol: HTTPS }
+    hosts: ["extsvc.windevopscloud.com"]
+    tls: { mode: SIMPLE, credentialName: pub-tls }

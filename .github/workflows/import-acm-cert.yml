@@ -21,31 +21,49 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
           mask-aws-account-id: true
 
-      - name: Import certificate and publish ARN
+      - name: Import certificates and publish ARNs
         env:
-          ACM_CERT_PEM: ${{ secrets.ACM_CERT_PEM }}
-          ACM_CHAIN_PEM: ${{ secrets.ACM_CHAIN_PEM }}
-          ACM_KEY_PEM: ${{ secrets.ACM_KEY_PEM }}
+          SIGNUP_CERT_PEM: ${{ secrets.ACM_CERT_PEM }}
+          SIGNUP_CHAIN_PEM: ${{ secrets.ACM_CHAIN_PEM }}
+          SIGNUP_KEY_PEM: ${{ secrets.ACM_KEY_PEM }}
+          INTSVC_CERT_PEM: ${{ secrets.INTSVC_CERT_PEM }}
+          INTSVC_CHAIN_PEM: ${{ secrets.INTSVC_CHAIN_PEM }}
+          INTSVC_KEY_PEM: ${{ secrets.INTSVC_KEY_PEM }}
+          CORPSVC_CERT_PEM: ${{ secrets.CORPSVC_CERT_PEM }}
+          CORPSVC_CHAIN_PEM: ${{ secrets.CORPSVC_CHAIN_PEM }}
+          CORPSVC_KEY_PEM: ${{ secrets.CORPSVC_KEY_PEM }}
+          EXTSVC_CERT_PEM: ${{ secrets.EXTSVC_CERT_PEM }}
+          EXTSVC_CHAIN_PEM: ${{ secrets.EXTSVC_CHAIN_PEM }}
+          EXTSVC_KEY_PEM: ${{ secrets.EXTSVC_KEY_PEM }}
         run: |
+          set -euo pipefail
           umask 077
           D=$(mktemp -d)
           trap 'rm -rf "$D"' EXIT
-          printf '%s\n' "$ACM_CERT_PEM"  > "$D/cert.pem"
-          printf '%s\n' "$ACM_CHAIN_PEM" > "$D/chain.pem"
-          printf '%s\n' "$ACM_KEY_PEM"   > "$D/key.pem"
 
-          PARAM="/${ENVIRONMENT}/acm/signup-cert-arn"
-          EXISTING=$(aws ssm get-parameter --name "$PARAM" --query Parameter.Value --output text 2>/dev/null || true)
-          EXTRA=""
-          if [ -n "$EXISTING" ] && aws acm describe-certificate --certificate-arn "$EXISTING" >/dev/null 2>&1; then
-            EXTRA="--certificate-arn $EXISTING"
-          fi
+          for NAME in signup intsvc corpsvc extsvc; do
+            U=$(echo "$NAME" | tr a-z A-Z)
+            for PART in CERT CHAIN KEY; do
+              V="${U}_${PART}_PEM"
+              if [ -z "${!V}" ]; then echo "Secret for ${V} is missing"; exit 1; fi
+            done
+            printf '%s\n' "$(eval echo \"\$${U}_CERT_PEM\")"  > "$D/${NAME}.cert.pem"
+            printf '%s\n' "$(eval echo \"\$${U}_CHAIN_PEM\")" > "$D/${NAME}.chain.pem"
+            printf '%s\n' "$(eval echo \"\$${U}_KEY_PEM\")"   > "$D/${NAME}.key.pem"
 
-          ARN=$(aws acm import-certificate $EXTRA \
-            --certificate "fileb://$D/cert.pem" \
-            --certificate-chain "fileb://$D/chain.pem" \
-            --private-key "fileb://$D/key.pem" \
-            --query CertificateArn --output text)
+            PARAM="/${ENVIRONMENT}/acm/${NAME}-cert-arn"
+            EXISTING=$(aws ssm get-parameter --name "$PARAM" --query Parameter.Value --output text 2>/dev/null || true)
+            EXTRA=""
+            if [ -n "$EXISTING" ] && aws acm describe-certificate --certificate-arn "$EXISTING" >/dev/null 2>&1; then
+              EXTRA="--certificate-arn $EXISTING"
+            fi
 
-          aws ssm put-parameter --name "$PARAM" --value "$ARN" --type String --overwrite
-          echo "Imported $ARN and stored it in $PARAM" >> "$GITHUB_STEP_SUMMARY"
+            ARN=$(aws acm import-certificate $EXTRA \
+              --certificate "fileb://$D/${NAME}.cert.pem" \
+              --certificate-chain "fileb://$D/${NAME}.chain.pem" \
+              --private-key "fileb://$D/${NAME}.key.pem" \
+              --query CertificateArn --output text)
+
+            aws ssm put-parameter --name "$PARAM" --value "$ARN" --type String --overwrite
+            echo "${NAME}: ${ARN} -> ${PARAM}" >> "$GITHUB_STEP_SUMMARY"
+          done

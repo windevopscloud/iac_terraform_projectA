@@ -148,3 +148,55 @@ variable "app_namespace" {
 variable "app_service_account" {
   type = string
 }
+
+variable "cognito_external_scopes" {
+  type = list(string)
+}
+
+variable "cognito_external_clients" {
+  type = map(list(string))
+}
+
+variable "cognito_corp_scopes" {
+  type = list(string)
+}
+
+variable "cognito_corp_clients" {
+  type = map(list(string))
+}
+
+variable "istio_version" {
+  type = string
+}
+
+variable "cognito_external_callback_urls" {
+  type = list(string)
+}
+
+variable "cognito_external_logout_urls" {
+  type = list(string)
+}
+
+variable "cognito_corp_callback_urls" {
+  type = list(string)
+}
+
+variable "cognito_corp_logout_urls" {
+  type = list(string)
+}
+
+variable "cognito_external_web_scopes" {
+  type = list(string)
+}
+
+variable "cognito_corp_web_scopes" {
+  type = list(string)
+}
+
+variable "cognito_external_test_users" {
+  type = list(string)
+}
+
+variable "cognito_corp_test_users" {
+  type = list(string)
+}

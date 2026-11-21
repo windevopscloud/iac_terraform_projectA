@@ -164,3 +164,7 @@ variable "cognito_corp_scopes" {
 variable "cognito_corp_clients" {
   type = map(list(string))
 }
+
+variable "istio_version" {
+  type = string
+}

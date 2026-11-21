@@ -128,3 +128,11 @@ module "cognito" {
 
   tags = { Environment = var.environment, Terraform = "true" }
 }
+
+module "istio" {
+  source = "./istio"
+
+  aws_region        = var.aws_region
+  istio_version     = var.istio_version
+  oidc_provider_arn = module.eks.oidc_provider_arn
+}

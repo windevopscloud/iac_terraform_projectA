@@ -15,7 +15,7 @@ lt_instance_types           = ["t3.medium"]
 lt_disk_size                = 20
 lt_key_name                 = null
 eks_tools_instance_type     = "t3.medium"
-ecr_repos                   = ["test1", "signup-app", "aws-load-balancer-controller"]
+ecr_repos                   = ["test1", "signup-app", "aws-load-balancer-controller", "pilot", "ecr_repos"]
 db_name                     = "signuprds"
 db_username                 = "signuprdsmaster"
 db_engine_version           = "17"
@@ -26,6 +26,7 @@ db_backup_retention_days    = 7
 eks_addon_secrets_store_csi = "v3.1.1-eksbuild.1"
 app_namespace               = "default"
 app_service_account         = "signup-app"
+istio_version               = "1.31.4"
 cognito_external_scopes     = ["intsvc1.invoke", "intsvc2.invoke", "extsvc1.invoke", "extsvc2.invoke"]
 
 cognito_external_clients = {

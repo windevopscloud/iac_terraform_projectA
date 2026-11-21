@@ -10,6 +10,10 @@ locals {
 resource "aws_cognito_user_pool" "external" {
   name = "ext-api-${var.environment}"
   tags = var.tags
+
+  admin_create_user_config {
+    allow_admin_create_user_only = true
+  }
 }
 
 resource "aws_cognito_resource_server" "external" {
@@ -56,6 +60,10 @@ resource "aws_cognito_user_pool_client" "external" {
 resource "aws_cognito_user_pool" "corp" {
   name = "corp-api-${var.environment}"
   tags = var.tags
+
+  admin_create_user_config {
+    allow_admin_create_user_only = true
+  }
 }
 
 resource "aws_cognito_resource_server" "corp" {
@@ -125,10 +133,6 @@ resource "aws_secretsmanager_secret_version" "corp_clients" {
     for name, c in aws_cognito_user_pool_client.corp :
     name => { client_id = c.id, client_secret = c.client_secret }
   })
-}
-
-admin_create_user_config {
-  allow_admin_create_user_only = true
 }
 
 ########################################

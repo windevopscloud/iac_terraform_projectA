@@ -1,0 +1,36 @@
+name: mirror-istio-image
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Istio image tag"
+        required: true
+        default: "1.31.4"
+
+env:
+  AWS_REGION: us-east-1
+  AWS_DEFAULT_REGION: us-east-1
+
+jobs:
+  mirror:
+    runs-on: runner_projectA
+    env:
+      VERSION: ${{ github.event.inputs.version }}
+    steps:
+      - name: Copy Istio images from Docker Hub to private ECR
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          REGISTRY="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+
+          aws ecr get-login-password --region "$AWS_REGION" | \
+            docker login --username AWS --password-stdin "$REGISTRY"
+          for IMG in pilot proxyv2; do
+            SRC="docker.io/istio/${IMG}:${VERSION}"
+            DST="${REGISTRY}/${IMG}:${VERSION}"
+            docker pull "$SRC"
+            docker tag "$SRC" "$DST"
+            docker push "$DST"
+            echo "Mirrored ${DST}" >> "$GITHUB_STEP_SUMMARY"
+          done
+          docker logout "$REGISTRY" || true

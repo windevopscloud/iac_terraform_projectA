@@ -123,6 +123,22 @@ resource "kubernetes_cluster_role_v1" "eks_tools" {
     verbs      = ["get", "list", "watch"]
   }
 
+  # read-only: debugging Istio / webhooks / RBAC
+  rule {
+    api_groups = ["rbac.authorization.k8s.io", "admissionregistration.k8s.io", "autoscaling", "apiextensions.k8s.io", "policy"]
+    resources = ["roles", "rolebindings", "clusterroles", "clusterrolebindings",
+      "mutatingwebhookconfigurations", "validatingwebhookconfigurations",
+    "horizontalpodautoscalers", "customresourcedefinitions", "poddisruptionbudgets"]
+    verbs = ["get", "list", "watch"]
+  }
+
+  # Istio and Gateway API objects (VirtualService, Gateway, PeerAuthentication, ...)
+  rule {
+    api_groups = ["networking.istio.io", "security.istio.io", "telemetry.istio.io", "gateway.networking.k8s.io"]
+    resources  = ["*"]
+    verbs      = ["get", "list", "watch", "create", "update", "patch", "delete"]
+  }
+
   # For Calico Network Policies (if using Calico CNI)
   #rule {
   #  api_groups = ["crd.projectcalico.org"]

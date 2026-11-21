@@ -10,7 +10,7 @@ variable "iam_instance_profile_name" {
 
 variable "instance_type" {
   type    = string
-  default = "t3.medium"
+  #default = "t3.medium"
 }
 
 variable "ami_name_prefix" {

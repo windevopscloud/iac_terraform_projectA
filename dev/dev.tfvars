@@ -27,13 +27,13 @@ app_namespace               = "default"
 app_service_account         = "signup-app"
 istio_version               = "1.31.4"
 
-cognito_external_scopes = ["intsvc1.invoke", "intsvc2.invoke", "extsvc1.invoke",
-"extsvc2.invoke"]
+cognito_external_scopes = ["extsvc1.invoke", "extsvc2.invoke", "outsvc1.invoke",
+"outsvc2.invoke"]
 
 cognito_external_clients = {
-  consumer-a = ["intsvc1.invoke", "intsvc2.invoke"]
-  intsvc3    = ["extsvc1.invoke"]
-  intsvc4    = ["extsvc2.invoke"]
+  consumer-a = ["extsvc1.invoke", "extsvc2.invoke"]
+  intsvc1    = ["outsvc1.invoke"]
+  intsvc2    = ["outsvc2.invoke"]
 }
 
 cognito_corp_scopes = ["corpsvc1.invoke", "corpsvc2.invoke"]
@@ -42,11 +42,11 @@ cognito_corp_clients = {
   corp-app-a = ["corpsvc1.invoke", "corpsvc2.invoke"]
 }
 
-cognito_external_callback_urls = ["https://intsvc.windevopscloud.com/success/intsvc-list/"]
-cognito_external_logout_urls   = ["https://intsvc.windevopscloud.com/"]
+cognito_external_callback_urls = ["https://extsvc.windevopscloud.com/success/extsvc-list/"]
+cognito_external_logout_urls   = ["https://extsvc.windevopscloud.com/"]
 cognito_corp_callback_urls     = ["https://corpsvc.windevopscloud.com/success/corpsvc-list/"]
 cognito_corp_logout_urls       = ["https://corpsvc.windevopscloud.com/"]
-cognito_external_web_scopes    = ["intsvc1.invoke", "intsvc2.invoke"]
+cognito_external_web_scopes    = ["extsvc1.invoke", "extsvc2.invoke"]
 cognito_corp_web_scopes        = ["corpsvc1.invoke", "corpsvc2.invoke"]
 cognito_external_test_users    = ["ext-user1"]
 cognito_corp_test_users        = ["corp-user1"]

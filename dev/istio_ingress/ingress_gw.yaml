@@ -5,7 +5,7 @@ spec:
   selector: { istio: ingress-ext }
   servers:
   - port: { number: 443, name: https, protocol: HTTPS }
-    hosts: ["intsvc.windevopscloud.com"]
+    hosts: ["extsvc.windevopscloud.com"]
     tls: { mode: SIMPLE, credentialName: ext-tls }
 ---
 apiVersion: networking.istio.io/v1

@@ -1,11 +1,11 @@
 locals {
   apis = {
     ext = {
-      host     = "intsvc.windevopscloud.com"
+      host     = "extsvc.windevopscloud.com"
       nlb_name = "${var.environment}-ext-nlb"
       pool_arn = var.external_user_pool_arn
-      cert_ssm = "/${var.environment}/acm/intsvc-cert-arn"
-      routes   = { intsvc1 = "ext-api/intsvc1.invoke", intsvc2 = "ext-api/intsvc2.invoke" }
+      cert_ssm = "/${var.environment}/acm/extsvc-cert-arn"
+      routes   = { extsvc1 = "ext-api/extsvc1.invoke", extsvc2 = "ext-api/extsvc2.invoke" }
       waf      = true
       rate     = 50
       burst    = 100

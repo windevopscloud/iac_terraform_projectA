@@ -7,7 +7,7 @@ locals {
 }
 
 ########################################
-# External pool: third parties and the services that call extsvc
+# External pool: third parties and the services that call outsvc
 ########################################
 resource "aws_cognito_user_pool" "external" {
   name = "ext-api-${var.environment}"

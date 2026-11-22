@@ -58,7 +58,7 @@ resource "helm_release" "gw" {
     resources    = { requests = { cpu = "100m", memory = "128Mi" }, limits = { cpu = "1", memory = "512Mi" } }
     service = {
       type = each.value.public ? "ClusterIP" : "LoadBalancer"
-      annotations = {
+      annotations = { for k, v in {
         "service.beta.kubernetes.io/aws-load-balancer-type"                              = "external"
         "service.beta.kubernetes.io/aws-load-balancer-nlb-target-type"                   = "ip"
         "service.beta.kubernetes.io/aws-load-balancer-scheme"                            = "internal"
@@ -68,7 +68,7 @@ resource "helm_release" "gw" {
         "service.beta.kubernetes.io/aws-load-balancer-healthcheck-protocol"              = "http"
         "service.beta.kubernetes.io/aws-load-balancer-healthcheck-port"                  = "15021"
         "service.beta.kubernetes.io/aws-load-balancer-healthcheck-path"                  = "/healthz/ready"
-      }
+      } : k => v if !each.value.public }
       ports = [{ name = "https", port = 443, targetPort = 8443, protocol = "TCP" }]
     }
   })]

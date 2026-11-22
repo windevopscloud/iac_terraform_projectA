@@ -135,6 +135,8 @@ module "istio" {
   aws_region        = var.aws_region
   istio_version     = var.istio_version
   oidc_provider_arn = module.eks.oidc_provider_arn
+
+  depends_on = [module.lbcontroller]
 }
 
 module "istio_ingress" {

@@ -13,7 +13,8 @@ resource "helm_release" "lbc" {
   repository = "https://aws.github.io/eks-charts"
   chart      = "aws-load-balancer-controller"
   version    = "1.14.0"
-  wait       = false
+  wait       = true
+  timeout    = 600
 
   set = [
     { name = "clusterName", value = var.cluster_name },

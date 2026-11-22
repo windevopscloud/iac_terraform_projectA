@@ -194,3 +194,11 @@ variable "cognito_external_test_users" {
 variable "cognito_corp_test_users" {
   type = list(string)
 }
+
+variable "cognito_external_auth_domain" {
+  type = string
+}
+
+variable "cognito_corp_auth_domain" {
+  type = string
+}

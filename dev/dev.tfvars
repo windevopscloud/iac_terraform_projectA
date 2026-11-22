@@ -50,3 +50,5 @@ cognito_external_web_scopes    = ["intsvc1.invoke", "intsvc2.invoke"]
 cognito_corp_web_scopes        = ["corpsvc1.invoke", "corpsvc2.invoke"]
 cognito_external_test_users    = ["ext-user1"]
 cognito_corp_test_users        = ["corp-user1"]
+cognito_external_auth_domain   = "auth-ext.windevopscloud.com"
+cognito_corp_auth_domain       = "auth-corp.windevopscloud.com"

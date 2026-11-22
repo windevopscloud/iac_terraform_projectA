@@ -19,3 +19,5 @@ variable "external_web_scopes" { type = list(string) }
 variable "corp_web_scopes" { type = list(string) }
 variable "external_test_users" { type = list(string) }
 variable "corp_test_users" { type = list(string) }
+variable "external_auth_domain" { type = string }
+variable "corp_auth_domain" { type = string }

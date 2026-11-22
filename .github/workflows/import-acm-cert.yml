@@ -35,13 +35,19 @@ jobs:
           EXTSVC_CERT_PEM: ${{ secrets.EXTSVC_CERT_PEM }}
           EXTSVC_CHAIN_PEM: ${{ secrets.EXTSVC_CHAIN_PEM }}
           EXTSVC_KEY_PEM: ${{ secrets.EXTSVC_KEY_PEM }}
+          AUTHEXT_CERT_PEM: ${{ secrets.AUTHEXT_CERT_PEM }}
+          AUTHEXT_CHAIN_PEM: ${{ secrets.AUTHEXT_CHAIN_PEM }}
+          AUTHEXT_KEY_PEM: ${{ secrets.AUTHEXT_KEY_PEM }}
+          AUTHCORP_CERT_PEM: ${{ secrets.AUTHCORP_CERT_PEM }}
+          AUTHCORP_CHAIN_PEM: ${{ secrets.AUTHCORP_CHAIN_PEM }}
+          AUTHCORP_KEY_PEM: ${{ secrets.AUTHCORP_KEY_PEM }}
         run: |
           set -euo pipefail
           umask 077
           D=$(mktemp -d)
           trap 'rm -rf "$D"' EXIT
 
-          for NAME in signup intsvc corpsvc extsvc; do
+          for NAME in signup intsvc corpsvc extsvc authext authcorp; do
             U=$(echo "$NAME" | tr a-z A-Z)
             for PART in CERT CHAIN KEY; do
               V="${U}_${PART}_PEM"

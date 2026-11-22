@@ -1,4 +1,6 @@
 data "aws_caller_identity" "current" {}
+data "aws_ssm_parameter" "auth_ext_cert" { name = "/${var.environment}/acm/authext-cert-arn" }
+data "aws_ssm_parameter" "auth_corp_cert" { name = "/${var.environment}/acm/authcorp-cert-arn" }
 
 locals {
   account_id = data.aws_caller_identity.current.account_id
@@ -31,8 +33,9 @@ resource "aws_cognito_resource_server" "external" {
 }
 
 resource "aws_cognito_user_pool_domain" "external" {
-  domain       = "ext-api-${var.environment}-${local.account_id}"
-  user_pool_id = aws_cognito_user_pool.external.id
+  domain          = var.external_auth_domain
+  certificate_arn = data.aws_ssm_parameter.auth_ext_cert.value
+  user_pool_id    = aws_cognito_user_pool.external.id
 }
 
 resource "aws_cognito_user_pool_client" "external" {
@@ -81,8 +84,9 @@ resource "aws_cognito_resource_server" "corp" {
 }
 
 resource "aws_cognito_user_pool_domain" "corp" {
-  domain       = "corp-api-${var.environment}-${local.account_id}"
-  user_pool_id = aws_cognito_user_pool.corp.id
+  domain          = var.corp_auth_domain
+  certificate_arn = data.aws_ssm_parameter.auth_corp_cert.value
+  user_pool_id    = aws_cognito_user_pool.corp.id
 }
 
 resource "aws_cognito_user_pool_client" "corp" {
@@ -244,12 +248,14 @@ resource "aws_secretsmanager_secret_version" "test_users" {
 ########################################
 resource "aws_ssm_parameter" "portal" {
   for_each = {
-    "/${var.environment}/cognito/ext/web-client-id"  = aws_cognito_user_pool_client.external_web.id
-    "/${var.environment}/cognito/ext/domain"         = "${aws_cognito_user_pool_domain.external.domain}.auth.${var.aws_region}.amazoncognito.com"
+    "/${var.environment}/cognito/ext/web-client-id" = aws_cognito_user_pool_client.external_web.id
+    #"/${var.environment}/cognito/ext/domain"         = "${aws_cognito_user_pool_domain.external.domain}.auth.${var.aws_region}.amazoncognito.com"
+    "/${var.environment}/cognito/ext/domain"         = var.external_auth_domain
     "/${var.environment}/cognito/corp/web-client-id" = aws_cognito_user_pool_client.corp_web.id
-    "/${var.environment}/cognito/corp/domain"        = "${aws_cognito_user_pool_domain.corp.domain}.auth.${var.aws_region}.amazoncognito.com"
-    "/${var.environment}/cognito/ext/issuer"         = "https://cognito-idp.${var.aws_region}.amazonaws.com/${aws_cognito_user_pool.external.id}"
-    "/${var.environment}/cognito/corp/issuer"        = "https://cognito-idp.${var.aws_region}.amazonaws.com/${aws_cognito_user_pool.corp.id}"
+    #"/${var.environment}/cognito/corp/domain"        = "${aws_cognito_user_pool_domain.corp.domain}.auth.${var.aws_region}.amazoncognito.com"
+    "/${var.environment}/cognito/corp/domain" = var.corp_auth_domain
+    "/${var.environment}/cognito/ext/issuer"  = "https://cognito-idp.${var.aws_region}.amazonaws.com/${aws_cognito_user_pool.external.id}"
+    "/${var.environment}/cognito/corp/issuer" = "https://cognito-idp.${var.aws_region}.amazonaws.com/${aws_cognito_user_pool.corp.id}"
   }
 
   name  = each.key

@@ -125,6 +125,8 @@ module "cognito" {
   corp_web_scopes        = var.cognito_corp_web_scopes
   external_test_users    = var.cognito_external_test_users
   corp_test_users        = var.cognito_corp_test_users
+  external_auth_domain   = var.cognito_external_auth_domain
+  corp_auth_domain       = var.cognito_corp_auth_domain
 
   tags = { Environment = var.environment, Terraform = "true" }
 }

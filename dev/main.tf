@@ -35,7 +35,7 @@ module "ecr" {
   environment      = var.environment
   aws_region       = var.aws_region
   eks_cluster_name = var.eks_cluster_name
-  ecr_repos        = var.ecr_repos
+  ecr_repos        = local.ecr_repos
 
   tags = {
     Environment = var.environment

@@ -1,25 +1,20 @@
-state_bucket_name        = "windevopscloud-terraform-bucket"
-state_table_name         = "windevopscloud-terraform-lock"
-aws_region               = "us-east-1"
-environment              = "poc"
-eks_cluster_name         = "eks-cluster"
-eks_version              = "1.35"
-eks_addon_coredns        = "v1.14.7-eksbuild.22"
-eks_addon_kube_proxy     = "v1.35.3-eksbuild.62"
-eks_addon_vpc_cni        = "v1.22.4-eksbuild.14"
-eks_addon_ebs_csi_driver = "v1.60.1-eksbuild.1"
-lt_desired_size          = 2
-lt_max_size              = 4
-lt_min_size              = 1
-lt_instance_types        = ["m5.large"]
-lt_disk_size             = 20
-lt_key_name              = null
-eks_tools_instance_type  = "m5.large"
-
-ecr_repos = ["test1", "signup-app", "aws-load-balancer-controller", "pilot",
-  "proxyv2", "portal-ext", "portal-corp", "intsvc1", "intsvc2", "intsvc3", "intsvc4",
-"corpsvc1", "corpsvc2", "extsvc1", "extsvc2"]
-
+state_bucket_name           = "windevopscloud-terraform-bucket"
+state_table_name            = "windevopscloud-terraform-lock"
+aws_region                  = "us-east-1"
+environment                 = "poc"
+eks_cluster_name            = "eks-cluster"
+eks_version                 = "1.35"
+eks_addon_coredns           = "v1.14.7-eksbuild.22"
+eks_addon_kube_proxy        = "v1.35.3-eksbuild.62"
+eks_addon_vpc_cni           = "v1.22.4-eksbuild.14"
+eks_addon_ebs_csi_driver    = "v1.60.1-eksbuild.1"
+lt_desired_size             = 2
+lt_max_size                 = 4
+lt_min_size                 = 1
+lt_instance_types           = ["m5.large"]
+lt_disk_size                = 20
+lt_key_name                 = null
+eks_tools_instance_type     = "m5.large"
 db_name                     = "signuprds"
 db_username                 = "signuprdsmaster"
 db_engine_version           = "17"

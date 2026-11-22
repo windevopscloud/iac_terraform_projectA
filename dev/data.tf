@@ -8,11 +8,6 @@ data "terraform_remote_state" "bootstrap" {
   }
 }
 
-locals {
-  vpc_id          = data.terraform_remote_state.bootstrap.outputs.vpc_id
-  private_subnets = data.terraform_remote_state.bootstrap.outputs.private_subnets
-}
-
 data "aws_eks_cluster_auth" "this" {
   name = module.eks.cluster_name
 }

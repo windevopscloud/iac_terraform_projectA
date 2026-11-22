@@ -16,3 +16,5 @@ locals {
 data "aws_eks_cluster_auth" "this" {
   name = module.eks.cluster_name
 }
+
+ecr_repos = data.terraform_remote_state.bootstrap.outputs.ecr_repository_names

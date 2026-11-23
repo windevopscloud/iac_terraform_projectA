@@ -188,7 +188,7 @@ resource "aws_api_gateway_deployment" "this" {
       [for k, i in aws_api_gateway_integration.route : i.uri if local.routes[k].api == each.key],
       aws_api_gateway_integration.root[each.key].uri,
       aws_api_gateway_integration.proxy[each.key].uri,
-      try(aws_api_gateway_rest_api_policy.private[each.key].policy, ""),
+      each.value.private ? aws_vpc_endpoint.execute_api.id : "",
     ]))
   }
   lifecycle { create_before_destroy = true }

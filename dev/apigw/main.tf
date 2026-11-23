@@ -9,6 +9,7 @@ locals {
       waf      = true
       rate     = 50
       burst    = 100
+      private  = false
     }
     corp = {
       host     = "corpsvc.windevopscloud.com"
@@ -19,6 +20,7 @@ locals {
       waf      = false
       rate     = 50
       burst    = 100
+      private  = true
     }
   }
 
@@ -28,7 +30,9 @@ locals {
     }
   ]...)
 
-  waf_apis = { for k, a in local.apis : k => a if a.waf }
+  waf_apis      = { for k, a in local.apis : k => a if a.waf }
+  regional_apis = { for k, a in local.apis : k => a if !a.private }
+  private_apis  = { for k, a in local.apis : k => a if a.private }
 }
 
 data "aws_lb" "nlb" {
@@ -54,7 +58,23 @@ resource "aws_api_gateway_vpc_link" "this" {
 resource "aws_api_gateway_rest_api" "this" {
   for_each = local.apis
   name     = "${var.environment}-${each.key}-api"
-  endpoint_configuration { types = ["REGIONAL"] }
+  endpoint_configuration {
+    types            = [each.value.private ? "PRIVATE" : "REGIONAL"]
+    vpc_endpoint_ids = each.value.private ? [aws_vpc_endpoint.execute_api.id] : null
+  }
+}
+
+resource "aws_api_gateway_rest_api_policy" "private" {
+  for_each    = local.private_apis
+  rest_api_id = aws_api_gateway_rest_api.this[each.key].id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      { Effect = "Allow", Principal = "*", Action = "execute-api:Invoke", Resource = "execute-api:/*" },
+      { Effect = "Deny", Principal = "*", Action = "execute-api:Invoke", Resource = "execute-api:/*",
+      Condition = { StringNotEquals = { "aws:SourceVpce" = aws_vpc_endpoint.execute_api.id } } }
+    ]
+  })
 }
 
 resource "aws_api_gateway_authorizer" "cognito" {
@@ -167,6 +187,7 @@ resource "aws_api_gateway_deployment" "this" {
       [for k, i in aws_api_gateway_integration.route : i.uri if local.routes[k].api == each.key],
       aws_api_gateway_integration.root[each.key].uri,
       aws_api_gateway_integration.proxy[each.key].uri,
+      try(aws_api_gateway_rest_api_policy.private[each.key].policy, ""), # inside the sha1(jsonencode([...])) list
     ]))
   }
   lifecycle { create_before_destroy = true }
@@ -174,6 +195,7 @@ resource "aws_api_gateway_deployment" "this" {
     aws_api_gateway_integration.route,
     aws_api_gateway_integration.root,
     aws_api_gateway_integration.proxy,
+    aws_api_gateway_rest_api_policy.private, # inside depends_on
   ]
 }
 

@@ -26,15 +26,15 @@ jobs:
           SIGNUP_CERT_PEM: ${{ secrets.ACM_CERT_PEM }}
           SIGNUP_CHAIN_PEM: ${{ secrets.ACM_CHAIN_PEM }}
           SIGNUP_KEY_PEM: ${{ secrets.ACM_KEY_PEM }}
-          INTSVC_CERT_PEM: ${{ secrets.INTSVC_CERT_PEM }}
-          INTSVC_CHAIN_PEM: ${{ secrets.INTSVC_CHAIN_PEM }}
-          INTSVC_KEY_PEM: ${{ secrets.INTSVC_KEY_PEM }}
-          CORPSVC_CERT_PEM: ${{ secrets.CORPSVC_CERT_PEM }}
-          CORPSVC_CHAIN_PEM: ${{ secrets.CORPSVC_CHAIN_PEM }}
-          CORPSVC_KEY_PEM: ${{ secrets.CORPSVC_KEY_PEM }}
           EXTSVC_CERT_PEM: ${{ secrets.EXTSVC_CERT_PEM }}
           EXTSVC_CHAIN_PEM: ${{ secrets.EXTSVC_CHAIN_PEM }}
           EXTSVC_KEY_PEM: ${{ secrets.EXTSVC_KEY_PEM }}
+          CORPSVC_CERT_PEM: ${{ secrets.CORPSVC_CERT_PEM }}
+          CORPSVC_CHAIN_PEM: ${{ secrets.CORPSVC_CHAIN_PEM }}
+          CORPSVC_KEY_PEM: ${{ secrets.CORPSVC_KEY_PEM }}
+          OUTSVC_CERT_PEM: ${{ secrets.OUTSVC_CERT_PEM }}
+          OUTSVC_CHAIN_PEM: ${{ secrets.OUTSVC_CHAIN_PEM }}
+          OUTSVC_KEY_PEM: ${{ secrets.OUTSVC_KEY_PEM }}
           AUTHEXT_CERT_PEM: ${{ secrets.AUTHEXT_CERT_PEM }}
           AUTHEXT_CHAIN_PEM: ${{ secrets.AUTHEXT_CHAIN_PEM }}
           AUTHEXT_KEY_PEM: ${{ secrets.AUTHEXT_KEY_PEM }}
@@ -47,7 +47,7 @@ jobs:
           D=$(mktemp -d)
           trap 'rm -rf "$D"' EXIT
 
-          for NAME in signup intsvc corpsvc extsvc authext authcorp; do
+          for NAME in signup extsvc corpsvc outsvc authext authcorp; do
             U=$(echo "$NAME" | tr a-z A-Z)
             for PART in CERT CHAIN KEY; do
               V="${U}_${PART}_PEM"

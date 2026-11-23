@@ -219,7 +219,7 @@ resource "aws_api_gateway_method_settings" "all" {
 
 # ---- custom domains with the imported Let's Encrypt certs ----
 resource "aws_api_gateway_domain_name" "this" {
-  for_each                 = local.apis
+  for_each                 = local.regional_apis
   domain_name              = each.value.host
   regional_certificate_arn = nonsensitive(data.aws_ssm_parameter.cert[each.key].value)
   security_policy          = "TLS_1_2"
@@ -227,7 +227,7 @@ resource "aws_api_gateway_domain_name" "this" {
 }
 
 resource "aws_api_gateway_base_path_mapping" "this" {
-  for_each    = local.apis
+  for_each    = local.regional_apis
   api_id      = aws_api_gateway_rest_api.this[each.key].id
   stage_name  = aws_api_gateway_stage.live[each.key].stage_name
   domain_name = aws_api_gateway_domain_name.this[each.key].domain_name

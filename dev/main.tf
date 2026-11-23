@@ -155,7 +155,16 @@ module "apigw" {
   environment            = var.environment
   external_user_pool_arn = module.cognito.external_user_pool_arn
   corp_user_pool_arn     = module.cognito.corp_user_pool_arn
+  vpc_id                 = local.vpc_id
+  private_subnet_ids     = local.private_subnets
   depends_on             = [module.istio_ingress]
+}
+
+module "windows_host" {
+  source      = "./windows_host"
+  environment = var.environment
+  vpc_id      = local.vpc_id
+  subnet_id   = local.private_subnets[0]
 }
 
 module "istio_egress" {

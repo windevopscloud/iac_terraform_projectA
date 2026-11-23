@@ -321,10 +321,10 @@ resource "aws_vpc_endpoint" "execute_api" {
 }
 
 resource "aws_api_gateway_domain_name" "private" {
-  for_each                 = local.private_apis
-  domain_name              = each.value.host
-  regional_certificate_arn = nonsensitive(data.aws_ssm_parameter.cert[each.key].value)
-  security_policy          = "TLS_1_2"
+  for_each        = local.private_apis
+  domain_name     = each.value.host
+  certificate_arn = nonsensitive(data.aws_ssm_parameter.cert[each.key].value)
+  security_policy = "TLS_1_2"
   endpoint_configuration { types = ["PRIVATE"] }
   policy = jsonencode({
     Version = "2012-10-17"

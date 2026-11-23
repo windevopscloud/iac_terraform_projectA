@@ -58,7 +58,7 @@ resource "aws_api_gateway_vpc_link" "this" {
 resource "aws_api_gateway_rest_api" "this" {
   for_each        = local.apis
   name            = "${var.environment}-${each.key}-api"
-  security_policy = "TLS_1_2"
+  security_policy = "SecurityPolicy_TLS13_1_2_2021_06"
   endpoint_configuration {
     types            = [each.value.private ? "PRIVATE" : "REGIONAL"]
     vpc_endpoint_ids = each.value.private ? [aws_vpc_endpoint.execute_api.id] : null

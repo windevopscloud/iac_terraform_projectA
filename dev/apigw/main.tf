@@ -61,6 +61,7 @@ resource "aws_api_gateway_rest_api" "this" {
   endpoint_configuration {
     types            = [each.value.private ? "PRIVATE" : "REGIONAL"]
     vpc_endpoint_ids = each.value.private ? [aws_vpc_endpoint.execute_api.id] : null
+    ip_address_type  = each.value.private ? "dualstack" : null
   }
 }
 

@@ -79,7 +79,7 @@ data "aws_eks_cluster_auth" "this" {
   name = aws_eks_cluster.this.name
 }
 
-# Commenting the tls certifcate as the DNS resolution not working in us-west-1
+# Commenting the tls certifcate as the DNS resolution not working in us-west-2
 #data "tls_certificate" "eks" {
 #  url = aws_eks_cluster.this.identity[0].oidc[0].issuer
 #}

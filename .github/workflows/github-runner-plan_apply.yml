@@ -18,7 +18,7 @@ concurrency:
 
 env:
   VAR_BACKEND: dev
-  AWS_REGION: "us-west-1"
+  AWS_REGION: "us-west-2"
   TF_WORKSPACE: dev
   TF_DIRECTORY: "./dev"
   PK_DIRECTORY: "./dev/eks/packer"

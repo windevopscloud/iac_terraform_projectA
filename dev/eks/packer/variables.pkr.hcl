@@ -1,6 +1,6 @@
 variable "region" {
   type    = string
-  default = "us-west-1"
+  default = "us-west-2"
 }
 
 variable "iam_instance_profile_name" {

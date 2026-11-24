@@ -36,18 +36,6 @@ resource "aws_iam_instance_profile" "this" {
   role = aws_iam_role.this.name
 }
 
-resource "aws_security_group" "this" {
-  name_prefix = "${var.environment}-windows-host-"
-  vpc_id      = var.vpc_id
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  lifecycle { create_before_destroy = true }
-}
-
 resource "aws_instance" "this" {
   ami                    = nonsensitive(data.aws_ssm_parameter.ami.value)
   instance_type          = var.instance_type

@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
 
 env:
-  AWS_REGION: us-east-1
-  AWS_DEFAULT_REGION: us-east-1
+  AWS_REGION: us-west-1
+  AWS_DEFAULT_REGION: us-west-1
   ENVIRONMENT: poc
 
 jobs:
@@ -57,19 +57,23 @@ jobs:
             printf '%s\n' "$(eval echo \"\$${U}_CHAIN_PEM\")" > "$D/${NAME}.chain.pem"
             printf '%s\n' "$(eval echo \"\$${U}_KEY_PEM\")"   > "$D/${NAME}.key.pem"
 
+            # Cognito custom domains (CloudFront) need the cert in us-east-1
+            CR="$AWS_REGION"
+            case "$NAME" in authext|authcorp) CR="us-east-1" ;; esac
+
             PARAM="/${ENVIRONMENT}/acm/${NAME}-cert-arn"
             EXISTING=$(aws ssm get-parameter --name "$PARAM" --query Parameter.Value --output text 2>/dev/null || true)
             EXTRA=""
-            if [ -n "$EXISTING" ] && aws acm describe-certificate --certificate-arn "$EXISTING" >/dev/null 2>&1; then
+            if [ -n "$EXISTING" ] && aws acm describe-certificate --region "$CR" --certificate-arn "$EXISTING" >/dev/null 2>&1; then
               EXTRA="--certificate-arn $EXISTING"
             fi
 
-            ARN=$(aws acm import-certificate $EXTRA \
+            ARN=$(aws acm import-certificate $EXTRA --region "$CR" \
               --certificate "fileb://$D/${NAME}.cert.pem" \
               --certificate-chain "fileb://$D/${NAME}.chain.pem" \
               --private-key "fileb://$D/${NAME}.key.pem" \
               --query CertificateArn --output text)
 
-            aws ssm put-parameter --name "$PARAM" --value "$ARN" --type String --overwrite
-            echo "${NAME}: ${ARN} -> ${PARAM}" >> "$GITHUB_STEP_SUMMARY"
+            aws ssm put-parameter --name "$PARAM" --value "$ARN" --type String --overwrite --region "$AWS_REGION"
+            echo "${NAME}: ${ARN} (${CR}) -> ${PARAM}" >> "$GITHUB_STEP_SUMMARY"
           done

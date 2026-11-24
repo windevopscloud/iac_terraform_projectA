@@ -1,6 +1,6 @@
 state_bucket_name           = "windevopscloud-terraform-bucket"
 state_table_name            = "windevopscloud-terraform-lock"
-aws_region                  = "us-east-1"
+aws_region                  = "us-west-2"
 environment                 = "poc"
 eks_cluster_name            = "eks-cluster"
 eks_version                 = "1.35"

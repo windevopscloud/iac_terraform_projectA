@@ -32,8 +32,9 @@ locals {
     }
   ]...)
 
-  waf_apis      = { for k, a in local.apis : k => a if a.waf }
-  regional_apis = { for k, a in local.apis : k => a if !a.private }
+  waf_apis = { for k, a in local.apis : k => a if a.waf }
+  #regional_apis = { for k, a in local.apis : k => a if !a.private }
+  regional_apis = {}
   private_apis  = { for k, a in local.apis : k => a if a.private }
 }
 

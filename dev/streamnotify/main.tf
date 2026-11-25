@@ -34,9 +34,27 @@ resource "aws_iam_role_policy" "smtp" {
     Statement = [{
       Effect   = "Allow"
       Action   = ["secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"]
-      Resource = [var.smtp_secret_arn]
+      Resource = [var.smtp_secret_arn, aws_secretsmanager_secret.app.arn]
     }]
   })
 }
 
 output "role_arn" { value = aws_iam_role.app.arn }
+
+resource "aws_secretsmanager_secret" "app" {
+  name                    = "streamnotify/${var.environment}/app"
+  recovery_window_in_days = 0
+  tags                    = var.tags
+}
+resource "random_password" "secret_key" {
+  length  = 64
+  special = false
+}
+resource "random_password" "publish_key" {
+  length  = 32
+  special = false
+}
+resource "aws_secretsmanager_secret_version" "app" {
+  secret_id     = aws_secretsmanager_secret.app.id
+  secret_string = jsonencode({ SECRET_KEY = random_password.secret_key.result, PUBLISH_KEY = random_password.publish_key.result })
+}

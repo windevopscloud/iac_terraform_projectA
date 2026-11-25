@@ -173,3 +173,14 @@ module "istio_egress" {
   istiod_id              = module.istio.istiod_id
   node_security_group_id = module.eks.node_security_group_id
 }
+
+module "streamnotify" {
+  source = "./streamnotify"
+
+  environment       = var.environment
+  oidc_provider_arn = module.eks.oidc_provider_arn
+  oidc_provider_url = module.eks.oidc_provider_url
+  smtp_secret_arn   = module.ses.smtp_secret_arn
+
+  tags = { Environment = var.environment, Terraform = "true" }
+}

@@ -41,13 +41,16 @@ jobs:
           AUTHCORP_CERT_PEM: ${{ secrets.AUTHCORP_CERT_PEM }}
           AUTHCORP_CHAIN_PEM: ${{ secrets.AUTHCORP_CHAIN_PEM }}
           AUTHCORP_KEY_PEM: ${{ secrets.AUTHCORP_KEY_PEM }}
+          STREAMING_CERT_PEM: ${{ secrets.STREAMING_CERT_PEM }}
+          STREAMING_CHAIN_PEM: ${{ secrets.STREAMING_CHAIN_PEM }}
+          STREAMING_KEY_PEM: ${{ secrets.STREAMING_KEY_PEM }}
         run: |
           set -euo pipefail
           umask 077
           D=$(mktemp -d)
           trap 'rm -rf "$D"' EXIT
 
-          for NAME in signup extsvc corpsvc outsvc authext authcorp; do
+          for NAME in signup extsvc corpsvc outsvc authext authcorp streaming; do
             U=$(echo "$NAME" | tr a-z A-Z)
             for PART in CERT CHAIN KEY; do
               V="${U}_${PART}_PEM"

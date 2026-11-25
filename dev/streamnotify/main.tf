@@ -34,7 +34,7 @@ resource "aws_iam_role_policy" "smtp" {
     Statement = [{
       Effect   = "Allow"
       Action   = ["secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"]
-      Resource = [var.smtp_secret_arn, aws_secretsmanager_secret.app.arn]
+      Resource = [var.smtp_secret_arn, aws_secretsmanager_secret.app.arn, aws_secretsmanager_secret.rds_app.arn]
     }]
   })
 }
@@ -57,4 +57,10 @@ resource "random_password" "publish_key" {
 resource "aws_secretsmanager_secret_version" "app" {
   secret_id     = aws_secretsmanager_secret.app.id
   secret_string = jsonencode({ SECRET_KEY = random_password.secret_key.result, PUBLISH_KEY = random_password.publish_key.result })
+}
+
+resource "aws_secretsmanager_secret" "rds_app" {
+  name                    = "streamnotify/${var.environment}/rds-app"
+  recovery_window_in_days = 0
+  tags                    = var.tags
 }

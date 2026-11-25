@@ -41,9 +41,9 @@ jobs:
           AUTHCORP_CERT_PEM: ${{ secrets.AUTHCORP_CERT_PEM }}
           AUTHCORP_CHAIN_PEM: ${{ secrets.AUTHCORP_CHAIN_PEM }}
           AUTHCORP_KEY_PEM: ${{ secrets.AUTHCORP_KEY_PEM }}
-          STREAMING_CERT_PEM: ${{ secrets.STREAM_CERT_PEM }}
-          STREAMING_CHAIN_PEM: ${{ secrets.STREAM_CHAIN_PEM }}
-          STREAMING_KEY_PEM: ${{ secrets.STREAM_KEY_PEM }}
+          STREAMING_CERT_PEM: ${{ secrets.STREAMING_CERT_PEM }}
+          STREAMING_CHAIN_PEM: ${{ secrets.STREAMING_CERT_PEM }}
+          STREAMING_KEY_PEM: ${{ secrets.STREAMING_CERT_PEM }}
         run: |
           set -euo pipefail
           umask 077

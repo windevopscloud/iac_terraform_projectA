@@ -3,7 +3,7 @@
 locals {
   apis = {
     ext = {
-      host     = "extsvc.windevopscloud.com"
+      host     = var.apihosts.ext
       nlb_name = "${var.environment}-ext-nlb"
       pool_arn = var.external_user_pool_arn
       cert_ssm = "/${var.environment}/acm/extsvc-cert-arn"
@@ -14,7 +14,7 @@ locals {
       private  = false
     }
     corp = {
-      host     = "corpsvc.windevopscloud.com"
+      host     = var.apihosts.corp
       nlb_name = "${var.environment}-corp-nlb"
       pool_arn = var.corp_user_pool_arn
       cert_ssm = "/${var.environment}/acm/corpsvc-cert-arn"
@@ -32,9 +32,8 @@ locals {
     }
   ]...)
 
-  waf_apis = { for k, a in local.apis : k => a if a.waf }
-  #regional_apis = { for k, a in local.apis : k => a if !a.private }
-  regional_apis = {}
+  waf_apis      = { for k, a in local.apis : k => a if a.waf }
+  regional_apis = { for k, a in local.apis : k => a if !a.private }
   private_apis  = { for k, a in local.apis : k => a if a.private }
 }
 

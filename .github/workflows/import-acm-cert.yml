@@ -23,24 +23,22 @@ jobs:
 
       - name: Import certificates and publish ARNs
         env:
-          STREAMING_CERT_PEM: ${{ secrets.WINDEVOPS_CERT_PEM }}
-          STREAMING_CHAIN_PEM: ${{ secrets.WINDEVOPS_CHAIN_PEM }}
-          STREAMING_KEY_PEM: ${{ secrets.WINDEVOPS_KEY_PEM }}
+          WILD_CERT_PEM: ${{ secrets.WINDEVOPS_CERT_PEM }}
+          WILD_CHAIN_PEM: ${{ secrets.WINDEVOPS_CHAIN_PEM }}
+          WILD_KEY_PEM: ${{ secrets.WINDEVOPS_KEY_PEM }}
         run: |
           set -euo pipefail
           umask 077
+          for V in WILD_CERT_PEM WILD_CHAIN_PEM WILD_KEY_PEM; do
+            [ -n "${!V}" ] || { echo "Secret for ${V} is missing"; exit 1; }
+          done
           D=$(mktemp -d)
           trap 'rm -rf "$D"' EXIT
 
           for NAME in signup extsvc corpsvc outsvc authext authcorp streaming; do
-            U=$(echo "$NAME" | tr a-z A-Z)
-            for PART in CERT CHAIN KEY; do
-              V="${U}_${PART}_PEM"
-              if [ -z "${!V}" ]; then echo "Secret for ${V} is missing"; exit 1; fi
-            done
-            printf '%s\n' "$(eval echo \"\$${U}_CERT_PEM\")"  > "$D/${NAME}.cert.pem"
-            printf '%s\n' "$(eval echo \"\$${U}_CHAIN_PEM\")" > "$D/${NAME}.chain.pem"
-            printf '%s\n' "$(eval echo \"\$${U}_KEY_PEM\")"   > "$D/${NAME}.key.pem"
+            printf '%s\n' "$WILD_CERT_PEM"  > "$D/${NAME}.cert.pem"
+            printf '%s\n' "$WILD_CHAIN_PEM" > "$D/${NAME}.chain.pem"
+            printf '%s\n' "$WILD_KEY_PEM"   > "$D/${NAME}.key.pem"
 
             # Cognito custom domains (CloudFront) need the cert in us-east-1
             CR="$AWS_REGION"

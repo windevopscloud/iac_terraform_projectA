@@ -42,13 +42,15 @@ cognito_corp_clients = {
   corp-app-a = ["corpsvc1.invoke", "corpsvc2.invoke"]
 }
 
-cognito_external_callback_urls = ["https://extsvc.windevopscloud.com/success/extsvc-list/"]
-cognito_external_logout_urls   = ["https://extsvc.windevopscloud.com/"]
-cognito_corp_callback_urls     = ["https://corpsvc.windevopscloud.com/success/corpsvc-list/"]
-cognito_corp_logout_urls       = ["https://corpsvc.windevopscloud.com/"]
-cognito_external_web_scopes    = ["extsvc1.invoke", "extsvc2.invoke"]
-cognito_corp_web_scopes        = ["corpsvc1.invoke", "corpsvc2.invoke"]
-cognito_external_test_users    = ["ext-user1"]
-cognito_corp_test_users        = ["corp-user1"]
-cognito_external_auth_domain   = "auth-ext.windevopscloud.com"
-cognito_corp_auth_domain       = "auth-corp.windevopscloud.com"
+apihosts = {
+  ext  = "extapi.windevopscloud.com"
+  corp = "corpapi.windevopscloud.com"
+  out  = "outapi.windevopscloud.com"
+}
+
+cognito_external_web_scopes  = ["extsvc1.invoke", "extsvc2.invoke"]
+cognito_corp_web_scopes      = ["corpsvc1.invoke", "corpsvc2.invoke"]
+cognito_external_test_users  = ["ext-user1"]
+cognito_corp_test_users      = ["corp-user1"]
+cognito_external_auth_domain = "auth-ext.windevopscloud.com"
+cognito_corp_auth_domain     = "auth-corp.windevopscloud.com"

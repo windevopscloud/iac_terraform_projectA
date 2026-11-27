@@ -86,6 +86,13 @@ module "secrets" {
     module.ses.smtp_secret_arn,
   ]
 
+  db_host               = module.rds.db_endpoint
+  db_port               = module.rds.db_port
+  db_name               = var.db_name
+  db_master_secret_arn  = module.rds.db_secret_arn
+  rds_security_group_id = module.rds.db_security_group_id
+  isolated_subnet_ids   = module.rds.isolated_subnet_ids
+
   tags = { Environment = var.environment, Terraform = "true" }
 }
 

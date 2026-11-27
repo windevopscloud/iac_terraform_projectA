@@ -40,5 +40,13 @@ resource "aws_eks_addon" "secrets_store_csi_provider" {
   addon_name    = "aws-secrets-store-csi-driver-provider"
   addon_version = var.eks_addon_secrets_store_csi
 
+  # Refresh mounted secret files after Secrets Manager rotates them
+  configuration_values = jsonencode({
+    "secrets-store-csi-driver" = {
+      enableSecretRotation = true
+      rotationPollInterval = "15s"
+    }
+  })
+
   depends_on = [aws_eks_node_group.this]
 }

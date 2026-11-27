@@ -1,8 +1,8 @@
 locals {
   gateways = {
-    ext  = { name = "ingress-ext", namespace = "istio-ingress-ext", host = "extsvc.windevopscloud.com", public = false }
-    corp = { name = "ingress-corp", namespace = "istio-ingress-corp", host = "corpsvc.windevopscloud.com", public = false }
-    pub  = { name = "ingress-pub", namespace = "istio-ingress-pub", host = "outsvc.windevopscloud.com", public = true }
+    ext  = { name = "ingress-ext", namespace = "istio-ingress-ext", host = var.apihosts.ext, public = false }
+    corp = { name = "ingress-corp", namespace = "istio-ingress-corp", host = var.apihosts.corp, public = false }
+    pub  = { name = "ingress-pub", namespace = "istio-ingress-pub", host = var.apihosts.out, public = true }
   }
 }
 

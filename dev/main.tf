@@ -86,6 +86,13 @@ module "secrets" {
     module.ses.smtp_secret_arn,
   ]
 
+  db_host               = module.rds.db_endpoint
+  db_port               = module.rds.db_port
+  db_name               = var.db_name
+  db_master_secret_arn  = module.rds.db_secret_arn
+  rds_security_group_id = module.rds.db_security_group_id
+  isolated_subnet_ids   = module.rds.isolated_subnet_ids
+
   tags = { Environment = var.environment, Terraform = "true" }
 }
 
@@ -117,10 +124,10 @@ module "cognito" {
   external_clients       = var.cognito_external_clients
   corp_scopes            = var.cognito_corp_scopes
   corp_clients           = var.cognito_corp_clients
-  external_callback_urls = var.cognito_external_callback_urls
-  external_logout_urls   = var.cognito_external_logout_urls
-  corp_callback_urls     = var.cognito_corp_callback_urls
-  corp_logout_urls       = var.cognito_corp_logout_urls
+  external_callback_urls = ["https://${var.apihosts.ext}/success/extsvc-list/"]
+  external_logout_urls   = ["https://${var.apihosts.ext}/"]
+  corp_callback_urls     = ["https://${var.apihosts.corp}/success/corpsvc-list/"]
+  corp_logout_urls       = ["https://${var.apihosts.corp}/"]
   external_web_scopes    = var.cognito_external_web_scopes
   corp_web_scopes        = var.cognito_corp_web_scopes
   external_test_users    = var.cognito_external_test_users
@@ -148,6 +155,7 @@ module "istio_ingress" {
   private_subnet_ids     = local.private_subnets
   node_security_group_id = module.eks.node_security_group_id
   istiod_id              = module.istio.istiod_id
+  apihosts               = var.apihosts
 }
 
 module "apigw" {
@@ -157,6 +165,7 @@ module "apigw" {
   corp_user_pool_arn     = module.cognito.corp_user_pool_arn
   vpc_id                 = local.vpc_id
   private_subnet_ids     = local.private_subnets
+  apihosts               = var.apihosts
   depends_on             = [module.istio_ingress]
 }
 

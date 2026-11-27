@@ -64,6 +64,14 @@ resource "aws_iam_role_policy" "eks_tools_client_secrets" {
       Effect   = "Allow"
       Action   = ["secretsmanager:GetSecretValue"]
       Resource = "arn:aws:secretsmanager:${var.aws_region}:${data.aws_caller_identity.current.account_id}:secret:cognito/${var.environment}/external-clients-*"
+      }, {
+      # signup deploy creates the app DB user: reads the app secret and the RDS master secret
+      Effect = "Allow"
+      Action = ["secretsmanager:GetSecretValue"]
+      Resource = [
+        "arn:aws:secretsmanager:${var.aws_region}:${data.aws_caller_identity.current.account_id}:secret:signup/${var.environment}/rds-app-*",
+        "arn:aws:secretsmanager:${var.aws_region}:${data.aws_caller_identity.current.account_id}:secret:rds!db-*",
+      ]
     }]
   })
 }

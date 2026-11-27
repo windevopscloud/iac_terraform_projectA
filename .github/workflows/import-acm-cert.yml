@@ -23,42 +23,22 @@ jobs:
 
       - name: Import certificates and publish ARNs
         env:
-          SIGNUP_CERT_PEM: ${{ secrets.ACM_CERT_PEM }}
-          SIGNUP_CHAIN_PEM: ${{ secrets.ACM_CHAIN_PEM }}
-          SIGNUP_KEY_PEM: ${{ secrets.ACM_KEY_PEM }}
-          EXTSVC_CERT_PEM: ${{ secrets.EXTSVC_CERT_PEM }}
-          EXTSVC_CHAIN_PEM: ${{ secrets.EXTSVC_CHAIN_PEM }}
-          EXTSVC_KEY_PEM: ${{ secrets.EXTSVC_KEY_PEM }}
-          CORPSVC_CERT_PEM: ${{ secrets.CORPSVC_CERT_PEM }}
-          CORPSVC_CHAIN_PEM: ${{ secrets.CORPSVC_CHAIN_PEM }}
-          CORPSVC_KEY_PEM: ${{ secrets.CORPSVC_KEY_PEM }}
-          OUTSVC_CERT_PEM: ${{ secrets.OUTSVC_CERT_PEM }}
-          OUTSVC_CHAIN_PEM: ${{ secrets.OUTSVC_CHAIN_PEM }}
-          OUTSVC_KEY_PEM: ${{ secrets.OUTSVC_KEY_PEM }}
-          AUTHEXT_CERT_PEM: ${{ secrets.AUTHEXT_CERT_PEM }}
-          AUTHEXT_CHAIN_PEM: ${{ secrets.AUTHEXT_CHAIN_PEM }}
-          AUTHEXT_KEY_PEM: ${{ secrets.AUTHEXT_KEY_PEM }}
-          AUTHCORP_CERT_PEM: ${{ secrets.AUTHCORP_CERT_PEM }}
-          AUTHCORP_CHAIN_PEM: ${{ secrets.AUTHCORP_CHAIN_PEM }}
-          AUTHCORP_KEY_PEM: ${{ secrets.AUTHCORP_KEY_PEM }}
-          STREAMING_CERT_PEM: ${{ secrets.STREAMING_CERT_PEM }}
-          STREAMING_CHAIN_PEM: ${{ secrets.STREAMING_CHAIN_PEM }}
-          STREAMING_KEY_PEM: ${{ secrets.STREAMING_KEY_PEM }}
+          WILD_CERT_PEM: ${{ secrets.WINDEVOPS_CERT_PEM }}
+          WILD_CHAIN_PEM: ${{ secrets.WINDEVOPS_CHAIN_PEM }}
+          WILD_KEY_PEM: ${{ secrets.WINDEVOPS_KEY_PEM }}
         run: |
           set -euo pipefail
           umask 077
+          for V in WILD_CERT_PEM WILD_CHAIN_PEM WILD_KEY_PEM; do
+            [ -n "${!V}" ] || { echo "Secret for ${V} is missing"; exit 1; }
+          done
           D=$(mktemp -d)
           trap 'rm -rf "$D"' EXIT
 
           for NAME in signup extsvc corpsvc outsvc authext authcorp streaming; do
-            U=$(echo "$NAME" | tr a-z A-Z)
-            for PART in CERT CHAIN KEY; do
-              V="${U}_${PART}_PEM"
-              if [ -z "${!V}" ]; then echo "Secret for ${V} is missing"; exit 1; fi
-            done
-            printf '%s\n' "$(eval echo \"\$${U}_CERT_PEM\")"  > "$D/${NAME}.cert.pem"
-            printf '%s\n' "$(eval echo \"\$${U}_CHAIN_PEM\")" > "$D/${NAME}.chain.pem"
-            printf '%s\n' "$(eval echo \"\$${U}_KEY_PEM\")"   > "$D/${NAME}.key.pem"
+            printf '%s\n' "$WILD_CERT_PEM"  > "$D/${NAME}.cert.pem"
+            printf '%s\n' "$WILD_CHAIN_PEM" > "$D/${NAME}.chain.pem"
+            printf '%s\n' "$WILD_KEY_PEM"   > "$D/${NAME}.key.pem"
 
             # Cognito custom domains (CloudFront) need the cert in us-east-1
             CR="$AWS_REGION"

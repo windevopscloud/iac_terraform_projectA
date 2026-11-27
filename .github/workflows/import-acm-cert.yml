@@ -51,11 +51,23 @@ jobs:
               EXTRA="--certificate-arn $EXISTING"
             fi
 
-            ARN=$(aws acm import-certificate $EXTRA --region "$CR" \
-              --certificate "fileb://$D/${NAME}.cert.pem" \
-              --certificate-chain "fileb://$D/${NAME}.chain.pem" \
-              --private-key "fileb://$D/${NAME}.key.pem" \
-              --query CertificateArn --output text)
+            import_cert() {
+              aws acm import-certificate "$@" --region "$CR" \
+                --certificate "fileb://$D/${NAME}.cert.pem" \
+                --certificate-chain "fileb://$D/${NAME}.chain.pem" \
+                --private-key "fileb://$D/${NAME}.key.pem" \
+                --query CertificateArn --output text
+            }
+            # Re-import keeps the same ARN, but ACM refuses it when the key type changed
+            # (for example RSA to EC). In that case import as a new certificate.
+            if ! ARN=$(import_cert $EXTRA 2>"$D/err"); then
+              if grep -q "different from" "$D/err"; then
+                echo "Key type changed for ${NAME}, importing as a new certificate"
+                ARN=$(import_cert)
+              else
+                cat "$D/err"; exit 1
+              fi
+            fi
 
             aws ssm put-parameter --name "$PARAM" --value "$ARN" --type String --overwrite --region "$AWS_REGION"
             echo "${NAME}: ${ARN} (${CR}) -> ${PARAM}" >> "$GITHUB_STEP_SUMMARY"

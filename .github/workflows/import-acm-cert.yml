@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
 
 env:
-  AWS_REGION: us-east-1
-  AWS_DEFAULT_REGION: us-east-1
+  AWS_REGION: us-west-2
+  AWS_DEFAULT_REGION: us-west-2
   ENVIRONMENT: poc
 
 jobs:
@@ -21,31 +21,54 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
           mask-aws-account-id: true
 
-      - name: Import certificate and publish ARN
+      - name: Import certificates and publish ARNs
         env:
-          ACM_CERT_PEM: ${{ secrets.ACM_CERT_PEM }}
-          ACM_CHAIN_PEM: ${{ secrets.ACM_CHAIN_PEM }}
-          ACM_KEY_PEM: ${{ secrets.ACM_KEY_PEM }}
+          WILD_CERT_PEM: ${{ secrets.WINDEVOPS_CERT_PEM }}
+          WILD_CHAIN_PEM: ${{ secrets.WINDEVOPS_CHAIN_PEM }}
+          WILD_KEY_PEM: ${{ secrets.WINDEVOPS_KEY_PEM }}
         run: |
+          set -euo pipefail
           umask 077
+          for V in WILD_CERT_PEM WILD_CHAIN_PEM WILD_KEY_PEM; do
+            [ -n "${!V}" ] || { echo "Secret for ${V} is missing"; exit 1; }
+          done
           D=$(mktemp -d)
           trap 'rm -rf "$D"' EXIT
-          printf '%s\n' "$ACM_CERT_PEM"  > "$D/cert.pem"
-          printf '%s\n' "$ACM_CHAIN_PEM" > "$D/chain.pem"
-          printf '%s\n' "$ACM_KEY_PEM"   > "$D/key.pem"
 
-          PARAM="/${ENVIRONMENT}/acm/signup-cert-arn"
-          EXISTING=$(aws ssm get-parameter --name "$PARAM" --query Parameter.Value --output text 2>/dev/null || true)
-          EXTRA=""
-          if [ -n "$EXISTING" ] && aws acm describe-certificate --certificate-arn "$EXISTING" >/dev/null 2>&1; then
-            EXTRA="--certificate-arn $EXISTING"
-          fi
+          for NAME in signup extsvc corpsvc outsvc authext authcorp streaming; do
+            printf '%s\n' "$WILD_CERT_PEM"  > "$D/${NAME}.cert.pem"
+            printf '%s\n' "$WILD_CHAIN_PEM" > "$D/${NAME}.chain.pem"
+            printf '%s\n' "$WILD_KEY_PEM"   > "$D/${NAME}.key.pem"
 
-          ARN=$(aws acm import-certificate $EXTRA \
-            --certificate "fileb://$D/cert.pem" \
-            --certificate-chain "fileb://$D/chain.pem" \
-            --private-key "fileb://$D/key.pem" \
-            --query CertificateArn --output text)
+            # Cognito custom domains (CloudFront) need the cert in us-east-1
+            CR="$AWS_REGION"
+            case "$NAME" in authext|authcorp) CR="us-east-1" ;; esac
 
-          aws ssm put-parameter --name "$PARAM" --value "$ARN" --type String --overwrite
-          echo "Imported $ARN and stored it in $PARAM" >> "$GITHUB_STEP_SUMMARY"
+            PARAM="/${ENVIRONMENT}/acm/${NAME}-cert-arn"
+            EXISTING=$(aws ssm get-parameter --name "$PARAM" --query Parameter.Value --output text 2>/dev/null || true)
+            EXTRA=""
+            if [ -n "$EXISTING" ] && aws acm describe-certificate --region "$CR" --certificate-arn "$EXISTING" >/dev/null 2>&1; then
+              EXTRA="--certificate-arn $EXISTING"
+            fi
+
+            import_cert() {
+              aws acm import-certificate "$@" --region "$CR" \
+                --certificate "fileb://$D/${NAME}.cert.pem" \
+                --certificate-chain "fileb://$D/${NAME}.chain.pem" \
+                --private-key "fileb://$D/${NAME}.key.pem" \
+                --query CertificateArn --output text
+            }
+            # Re-import keeps the same ARN, but ACM refuses it when the key type changed
+            # (for example RSA to EC). In that case import as a new certificate.
+            if ! ARN=$(import_cert $EXTRA 2>"$D/err"); then
+              if grep -q "different from" "$D/err"; then
+                echo "Key type changed for ${NAME}, importing as a new certificate"
+                ARN=$(import_cert)
+              else
+                cat "$D/err"; exit 1
+              fi
+            fi
+
+            aws ssm put-parameter --name "$PARAM" --value "$ARN" --type String --overwrite --region "$AWS_REGION"
+            echo "${NAME}: ${ARN} (${CR}) -> ${PARAM}" >> "$GITHUB_STEP_SUMMARY"
+          done

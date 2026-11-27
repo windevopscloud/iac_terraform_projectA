@@ -9,8 +9,8 @@ on:
         default: "1.31.4"
 
 env:
-  AWS_REGION: us-east-1
-  AWS_DEFAULT_REGION: us-east-1
+  AWS_REGION: us-west-2
+  AWS_DEFAULT_REGION: us-west-2
 
 jobs:
   mirror:

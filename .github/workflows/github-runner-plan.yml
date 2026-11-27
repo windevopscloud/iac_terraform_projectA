@@ -12,7 +12,7 @@ on:
 
 env:
   VAR_BACKEND: dev
-  AWS_REGION: "us-east-1"
+  AWS_REGION: "us-west-2"
   TF_WORKSPACE: dev
   TF_DIRECTORY: "./dev"
   PK_DIRECTORY: "./dev/eks/packer"
@@ -27,10 +27,10 @@ jobs:
       HOME: /tmp
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -43,9 +43,24 @@ jobs:
       - name: Detect changes in packer folder
         id: packer_check
         run: |
-          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q '^dev/eks/packer/'; then
+          BASE_SHA=${{ github.event.pull_request.base.sha }}
+          HEAD_SHA=${{ github.event.pull_request.head.sha }}
+
+          echo "Fetching PR base and head commits..."
+          git fetch origin $BASE_SHA || true
+          git fetch origin $HEAD_SHA || true
+
+          echo "Checking diff between $BASE_SHA and $HEAD_SHA..."
+          CHANGED_FILES=$(git diff --name-only $BASE_SHA $HEAD_SHA)
+
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          if echo "$CHANGED_FILES" | grep -E '^dev/eks/packer/' >/dev/null; then
+            echo "PACKER_CHANGED"
             echo "PACKER_CHANGED=true" >> $GITHUB_ENV
           else
+            echo "PACKER_NOT_CHANGED"
             echo "PACKER_CHANGED=false" >> $GITHUB_ENV
           fi
 
@@ -70,9 +85,9 @@ jobs:
 
       - name: Setup Packer
         if: env.PACKER_CHANGED == 'true' || env.AMI_EXISTS == 'false'
-        uses: hashicorp/setup-packer@v2
+        uses: hashicorp/setup-packer@v3
         with:
-          version: "1.14.2"
+          version: "1.16.2"
           
       - name: Install Packer Amazon plugin
         if: env.PACKER_CHANGED == 'true' || env.AMI_EXISTS == 'false'
@@ -96,6 +111,22 @@ jobs:
           set -euo pipefail
           echo "Building new AMI..."
           packer build . | tee build.log
+      
+      - name: Remove old AMIs (keep newest 3)
+        if: env.PACKER_CHANGED == 'true' || env.AMI_EXISTS == 'false'
+        run: |
+          set -euo pipefail
+          aws ec2 describe-images --owners self \
+            --filters "Name=name,Values=${{ env.AMI_NAME_PREFIX }}-*" \
+            --query 'sort_by(Images,&CreationDate)[:-3].[ImageId,BlockDeviceMappings[0].Ebs.SnapshotId]' \
+            --output text | while read -r AMI SNAP; do
+              [ -z "$AMI" ] && continue
+              echo "Removing $AMI / $SNAP"
+              aws ec2 deregister-image --image-id "$AMI"
+              if [ "$SNAP" != "None" ]; then
+                aws ec2 delete-snapshot --snapshot-id "$SNAP"
+              fi
+            done
 
   terraform-plan:
     runs-on: runner_projectA
@@ -107,16 +138,16 @@ jobs:
     needs: [build-ami]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
         with:
-          terraform_version: "1.12.0"
+          terraform_version: "1.17.0"
           terraform_wrapper: false
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

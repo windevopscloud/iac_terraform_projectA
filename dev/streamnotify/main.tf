@@ -64,3 +64,55 @@ resource "aws_secretsmanager_secret" "rds_app" {
   recovery_window_in_days = 0
   tags                    = var.tags
 }
+
+# --- Dedicated app DB user: secret + automatic rotation (same design as signup) ---
+# The database and the user are created in Postgres by streaming_app/deploy/db-bootstrap.sh.
+resource "random_password" "db_app" {
+  length  = 32
+  special = false
+}
+
+resource "aws_secretsmanager_secret_version" "rds_app" {
+  secret_id = aws_secretsmanager_secret.rds_app.id
+  secret_string = jsonencode({
+    engine    = "postgres"
+    host      = var.db_host
+    port      = var.db_port
+    dbname    = var.db_name
+    username  = var.db_app_username
+    password  = random_password.db_app.result
+    masterarn = var.db_master_secret_arn
+  })
+
+  lifecycle {
+    ignore_changes = [secret_string]
+  }
+}
+
+# Hosted rotation Lambda, reusing the rotation security group created in the secrets module
+resource "aws_cloudformation_stack" "db_rotation" {
+  name         = "streamnotify-db-rotation-${var.environment}"
+  capabilities = ["CAPABILITY_IAM", "CAPABILITY_AUTO_EXPAND"]
+
+  template_body = jsonencode({
+    Transform = "AWS::SecretsManager-2020-07-23"
+    Resources = {
+      Rotation = {
+        Type = "AWS::SecretsManager::RotationSchedule"
+        Properties = {
+          SecretId = aws_secretsmanager_secret.rds_app.arn
+          HostedRotationLambda = {
+            RotationType        = "PostgreSQLSingleUser"
+            RotationLambdaName  = "streamnotify-db-rotation-${var.environment}"
+            VpcSecurityGroupIds = var.rotation_security_group_id
+            VpcSubnetIds        = join(",", var.isolated_subnet_ids)
+          }
+          RotationRules             = { ScheduleExpression = var.db_rotation_schedule }
+          RotateImmediatelyOnUpdate = false # the DB user does not exist until the streaming deploy runs
+        }
+      }
+    }
+  })
+
+  depends_on = [aws_secretsmanager_secret_version.rds_app]
+}

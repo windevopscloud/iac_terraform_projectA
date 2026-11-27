@@ -191,5 +191,14 @@ module "streamnotify" {
   oidc_provider_url = module.eks.oidc_provider_url
   smtp_secret_arn   = module.ses.smtp_secret_arn
 
+  db_host                    = module.rds.db_endpoint
+  db_port                    = module.rds.db_port
+  db_master_secret_arn       = module.rds.db_secret_arn
+  rotation_security_group_id = module.secrets.db_rotation_security_group_id
+  isolated_subnet_ids        = module.rds.isolated_subnet_ids
+
+  # the rotation security group rules (in module.secrets) must exist before the rotation Lambda is created
+  depends_on = [module.secrets]
+
   tags = { Environment = var.environment, Terraform = "true" }
 }

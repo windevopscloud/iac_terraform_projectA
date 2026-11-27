@@ -70,6 +70,7 @@ resource "aws_iam_role_policy" "eks_tools_client_secrets" {
       Action = ["secretsmanager:GetSecretValue"]
       Resource = [
         "arn:aws:secretsmanager:${var.aws_region}:${data.aws_caller_identity.current.account_id}:secret:signup/${var.environment}/rds-app-*",
+        "arn:aws:secretsmanager:${var.aws_region}:${data.aws_caller_identity.current.account_id}:secret:streamnotify/${var.environment}/rds-app-*",
         "arn:aws:secretsmanager:${var.aws_region}:${data.aws_caller_identity.current.account_id}:secret:rds!db-*",
       ]
     }]

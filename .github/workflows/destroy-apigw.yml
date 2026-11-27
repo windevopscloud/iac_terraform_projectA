@@ -1,0 +1,58 @@
+name: destroy-apigw
+
+# Run this before the sandbox expires. It deletes the API Gateways, their custom domains
+# (extapi, corpapi), base path mappings, WAF and the private zone, so the next rebuild
+# does not hit "domain name already exists".
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type 'destroy-apigw' to confirm"
+        required: true
+        default: ""
+
+concurrency:
+  group: github-runner-apply
+  cancel-in-progress: false
+
+env:
+  VAR_BACKEND: dev
+  AWS_REGION: "us-west-2"
+  TF_WORKSPACE: dev
+  TF_DIRECTORY: "./dev"
+
+jobs:
+  destroy-apigw:
+    if: github.event.inputs.confirm == 'destroy-apigw'
+    runs-on: runner_projectA
+    environment: dev
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: ${{ env.TF_DIRECTORY }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: "1.17.0"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform Init
+        run: terraform init -reconfigure -backend-config=${VAR_BACKEND}-backend.hcl
+
+      - name: Destroy API Gateway module
+        run: |
+          terraform destroy \
+            -target=module.apigw \
+            -var-file="${VAR_BACKEND}.tfvars" \
+            -auto-approve -no-color

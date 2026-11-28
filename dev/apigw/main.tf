@@ -37,9 +37,33 @@ locals {
   private_apis  = { for k, a in local.apis : k => a if a.private }
 }
 
-data "aws_lb" "nlb" {
+# The NLBs are created by the AWS Load Balancer Controller after the ingress Services
+# exist, so wait (up to 15 min) until they are active before looking them up.
+resource "terraform_data" "wait_nlb" {
   for_each = local.apis
-  name     = each.value.nlb_name
+
+  provisioner "local-exec" {
+    interpreter = ["/bin/bash", "-c"]
+    command     = <<-EOT
+      for i in $(seq 1 90); do
+        state=$(aws elbv2 describe-load-balancers --names ${each.value.nlb_name} --region ${data.aws_region.current.region} --query 'LoadBalancers[0].State.Code' --output text 2>/dev/null || true)
+        if [ "$state" = "active" ]; then
+          echo "NLB ${each.value.nlb_name} is active"
+          exit 0
+        fi
+        echo "waiting for NLB ${each.value.nlb_name} (state: $${state:-not created yet}) $i/90"
+        sleep 10
+      done
+      echo "NLB ${each.value.nlb_name} not active after 15 min. Check the AWS Load Balancer Controller pod and its image." >&2
+      exit 1
+    EOT
+  }
+}
+
+data "aws_lb" "nlb" {
+  for_each   = local.apis
+  name       = each.value.nlb_name
+  depends_on = [terraform_data.wait_nlb]
 }
 
 data "aws_ssm_parameter" "cert" {

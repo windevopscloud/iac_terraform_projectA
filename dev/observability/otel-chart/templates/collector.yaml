@@ -1,0 +1,36 @@
+# Handled by the ADOT add-on's operator. Service name: otel-collector (port 4317 gRPC, 4318 HTTP).
+apiVersion: opentelemetry.io/v1alpha1
+kind: OpenTelemetryCollector
+metadata:
+  name: otel
+  namespace: {{ .Release.Namespace }}
+spec:
+  mode: deployment
+  replicas: 1
+  serviceAccount: otel-collector
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      memory: 256Mi
+  config: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+    processors:
+      batch:
+        timeout: 5s
+    exporters:
+      awsxray:
+        region: {{ .Values.region }}
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [awsxray]

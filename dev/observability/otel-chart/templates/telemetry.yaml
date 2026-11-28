@@ -1,0 +1,12 @@
+# Mesh-wide: every sidecar and gateway sends spans to the "otel-tracing" provider
+# (defined in istiod meshConfig.extensionProviders, see istio/helm.tf).
+apiVersion: telemetry.istio.io/v1
+kind: Telemetry
+metadata:
+  name: mesh-default
+  namespace: istio-system
+spec:
+  tracing:
+    - providers:
+        - name: otel-tracing
+      randomSamplingPercentage: {{ .Values.samplingPercentage }}

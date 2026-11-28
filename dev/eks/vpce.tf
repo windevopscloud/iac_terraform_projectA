@@ -107,3 +107,17 @@ resource "aws_vpc_endpoint" "elasticloadbalancing" {
     Name = "elb-vpc-endpoint"
   }
 }
+
+# X-Ray Endpoint (traces from the OpenTelemetry collector)
+resource "aws_vpc_endpoint" "xray" {
+  vpc_id              = data.aws_vpc.selected.id
+  service_name        = "com.amazonaws.${var.aws_region}.xray"
+  vpc_endpoint_type   = "Interface"
+  private_dns_enabled = true
+  subnet_ids          = data.aws_subnets.private.ids
+  security_group_ids  = [aws_security_group.vpc_endpoint_eks_sg.id]
+
+  tags = {
+    Name = "xray-vpc-endpoint"
+  }
+}

@@ -202,3 +202,18 @@ module "streamnotify" {
 
   tags = { Environment = var.environment, Terraform = "true" }
 }
+
+module "observability" {
+  source = "./observability"
+
+  environment       = var.environment
+  aws_region        = var.aws_region
+  cluster_name      = var.eks_cluster_name
+  oidc_provider_arn = module.eks.oidc_provider_arn
+  oidc_provider_url = module.eks.oidc_provider_url
+
+  tags = { Environment = var.environment, Terraform = "true" }
+
+  # nodes must exist for the add-ons, and the Istio CRDs for the Telemetry resource
+  depends_on = [module.eks, module.istio]
+}

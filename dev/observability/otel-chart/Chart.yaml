@@ -1,0 +1,5 @@
+apiVersion: v2
+name: otel
+description: OpenTelemetry collector (traces to AWS X-Ray) and Istio tracing settings
+version: 0.1.0
+appVersion: "1.0"
